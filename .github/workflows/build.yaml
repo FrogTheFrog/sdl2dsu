@@ -1,0 +1,56 @@
+name: Build
+on: [pull_request,workflow_call]
+jobs:
+  Checks:
+    uses: ./.github/workflows/checks.yaml
+
+  LinuxAppImage:
+    runs-on: ubuntu-latest
+    needs: [Checks]
+    steps:
+      - name: Install packages for building
+        run: sudo apt-get install ninja-build libboost-all-dev
+
+      - name: Install additional packages for AppImage building
+        run: sudo apt-get install libfuse2
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Make build dir
+        run: mkdir build
+
+      - name: Configure
+        working-directory: ./build
+        run: cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
+
+      - name: Build
+        working-directory: ./build
+        run: ninja
+
+      - name: Install
+        working-directory: ./build
+        run: DESTDIR=AppDir ninja install
+
+      - name: Get linuxdeploy's AppImage
+        working-directory: ./build
+        run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x ./linuxdeploy-x86_64.AppImage
+
+      - name: Prep AppImage name if needed
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64.AppImage" >> $GITHUB_ENV
+
+      - name: Package AppImage
+        working-directory: ./build
+        run: ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sdl2dsu
+          path: ./build/sdl2dsu*AppImage
+          retention-days: 1
+          if-no-files-found: error
+        
