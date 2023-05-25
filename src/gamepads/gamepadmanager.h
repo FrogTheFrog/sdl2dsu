@@ -15,6 +15,8 @@ namespace gamepads
 {
 class GamepadManager final
 {
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(GamepadManager)
+
 public:
     explicit GamepadManager(shared::GamepadDataContainer& gamepad_data);
 

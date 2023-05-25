@@ -15,6 +15,7 @@ set(HEADERS
     gamepads/handlebuttonupdate.h
     gamepads/handlesensorupdate.h
     gamepads/handletouchpadupdate.h
+    server/activeclients.h
     server/common.h
     server/communication.h
     server/deserialiser.h
@@ -35,6 +36,7 @@ set(SOURCES
     gamepads/handlebuttonupdate.cpp
     gamepads/handlesensorupdate.cpp
     gamepads/handletouchpadupdate.cpp
+    server/activeclients.cpp
     server/common.cpp
     server/communication.cpp
     server/deserialiser.cpp
