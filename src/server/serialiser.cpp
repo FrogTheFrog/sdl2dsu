@@ -55,18 +55,18 @@ void serialiseGamepadHeader(const std::optional<shared::GamepadData>& gamepad_da
     }
     else
     {
-        writeUInt8(data, index, 0x02 /* disconnected */);
-        writeUInt8(data, index, 0x02 /* no gyro yet */);
-        writeUInt8(data, index, 0x01 /* no connection type yet */);
+        writeUInt8(data, index, 0x00 /* disconnected */);
+        writeUInt8(data, index, 0x00 /* no gyro yet */);
+        writeUInt8(data, index, 0x00 /* no connection type yet */);
     }
 
     // MAC address is not supported
-    writeUInt8(data, index, 0x0A);
-    writeUInt8(data, index, 0x0B);
-    writeUInt8(data, index, 0x0C);
-    writeUInt8(data, index, 0x56);
-    writeUInt8(data, index, 0x22);
-    writeUInt8(data, index, 0x33);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
 
     if (gamepad_data)
     {

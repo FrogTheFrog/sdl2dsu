@@ -77,8 +77,8 @@ void writeUInt16LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 {
     BOOST_ASSERT(index + 1 < data.size());
 
-    data[index++] = value >> 8;
     data[index++] = value;
+    data[index++] = value >> 8;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,10 +87,10 @@ void writeUInt32LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 {
     BOOST_ASSERT(index + 3 < data.size());
 
-    data[index++] = value >> 24;
-    data[index++] = value >> 16;
-    data[index++] = value >> 8;
     data[index++] = value;
+    data[index++] = value >> 8;
+    data[index++] = value >> 16;
+    data[index++] = value >> 24;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,14 +99,14 @@ void writeUInt64LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 {
     BOOST_ASSERT(index + 7 < data.size());
 
-    data[index++] = value >> 56;
-    data[index++] = value >> 48;
-    data[index++] = value >> 40;
-    data[index++] = value >> 32;
-    data[index++] = value >> 24;
-    data[index++] = value >> 16;
-    data[index++] = value >> 8;
     data[index++] = value;
+    data[index++] = value >> 8;
+    data[index++] = value >> 16;
+    data[index++] = value >> 24;
+    data[index++] = value >> 32;
+    data[index++] = value >> 40;
+    data[index++] = value >> 48;
+    data[index++] = value >> 56;
 }
 
 //--------------------------------------------------------------------------------------------------
