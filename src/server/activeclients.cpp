@@ -39,7 +39,7 @@ std::map<std::uint8_t, std::set<ClientEndpointCounter>>
 //--------------------------------------------------------------------------------------------------
 
 void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
-                                      std::optional<std::uint8_t> requested_index)
+                                      std::set<std::uint8_t> requested_indexes)
 {
     const ClientEndpoint client_endpoint{client_id, endpoint};
     auto                 pad_data_it{m_clients.find(client_endpoint)};
@@ -62,10 +62,13 @@ void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endp
         }
     };
 
-    if (requested_index)
+    if (!requested_indexes.empty())
     {
-        BOOST_ASSERT(*requested_index < 4);
-        set_client_data_timestamp(pad_data_it->second[*requested_index]);
+        for (const auto index : requested_indexes)
+        {
+            BOOST_ASSERT(index < 4);
+            set_client_data_timestamp(pad_data_it->second[index]);
+        }
     }
     else
     {

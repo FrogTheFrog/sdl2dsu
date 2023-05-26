@@ -22,6 +22,13 @@ bool tryModifyState(bool& from, std::uint8_t to)
     from = is_pressed;
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+bool shouldTryToEnableSensor(const shared::details::Special& special)
+{
+    return special.m_back && special.m_guide && special.m_start;
+}
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -57,14 +64,47 @@ std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& eve
                                          { return tryModifyState(data.m_dpad.m_right, event.state); });
 
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_BACK:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_special.m_back, event.state); });
+            return manager.tryUpdateData(event.which,
+                                         [&event, &manager](auto& data)
+                                         {
+                                             if (tryModifyState(data.m_special.m_back, event.state))
+                                             {
+                                                 if (shouldTryToEnableSensor(data.m_special))
+                                                 {
+                                                     manager.tryChangeSensorState(event.which, std::nullopt);
+                                                 }
+                                                 return true;
+                                             }
+                                             return false;
+                                         });
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_GUIDE:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_special.m_guide, event.state); });
+            return manager.tryUpdateData(event.which,
+                                         [&event, &manager](auto& data)
+                                         {
+                                             if (tryModifyState(data.m_special.m_guide, event.state))
+                                             {
+                                                 if (shouldTryToEnableSensor(data.m_special))
+                                                 {
+                                                     manager.tryChangeSensorState(event.which, std::nullopt);
+                                                 }
+                                                 return true;
+                                             }
+                                             return false;
+                                         });
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_START:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_special.m_start, event.state); });
+            return manager.tryUpdateData(event.which,
+                                         [&event, &manager](auto& data)
+                                         {
+                                             if (tryModifyState(data.m_special.m_start, event.state))
+                                             {
+                                                 if (shouldTryToEnableSensor(data.m_special))
+                                                 {
+                                                     manager.tryChangeSensorState(event.which, std::nullopt);
+                                                 }
+                                                 return true;
+                                             }
+                                             return false;
+                                         });
 
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
             return manager.tryUpdateData(event.which, [&event](auto& data)

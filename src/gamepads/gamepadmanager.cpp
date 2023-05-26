@@ -57,9 +57,7 @@ std::optional<std::uint8_t> GamepadManager::tryOpenGamepad(std::uint32_t id)
         return std::nullopt;
     }
 
-    m_gamepad_data[*index]                       = shared::GamepadData{};
-    m_gamepad_data[*index]->m_sensor.m_supported = result.first->second.hasSensorSupport();
-
+    m_gamepad_data[*index] = shared::GamepadData{};
     return index;
 }
 
@@ -89,5 +87,16 @@ std::uint8_t GamepadManager::closeGamepad(std::uint32_t id)
     }
 
     return index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GamepadManager::tryChangeSensorState(std::uint32_t id, const std::optional<bool>& enable)
+{
+    auto open_handle_it{m_open_handles.find(id)};
+    if (open_handle_it != std::end(m_open_handles))
+    {
+        open_handle_it->second.tryChangeSensorState(enable);
+    }
 }
 }  // namespace gamepads

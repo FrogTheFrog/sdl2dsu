@@ -42,6 +42,30 @@ bool tryModifyState(float& from, float to)
     from = to;
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+float timestampToDsuTimestamp(float ts)
+{
+    // SDL provides TS in nanoseconds, we need microseconds
+    return ts / 1000.f;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+float accelToDsuAccel(float value)
+{
+    // SDL standardizes the accel value, but DSU does not like the gravity multiplier
+    return value / SDL_STANDARD_GRAVITY;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+float gyroToDsuGyro(float value)
+{
+    // SDL also standardizes the gyro value, but DSU needs deg/s
+    return value * 180.0f / M_PI;
+}
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -58,10 +82,10 @@ std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& eve
                 [&event](auto& data)
                 {
                     bool updated{false};
-                    updated = tryModifyState(data.m_sensor.m_ts, event.sensor_timestamp);
-                    updated = tryModifyState(data.m_sensor.m_accel.m_x, event.data[0]) || updated;
-                    updated = tryModifyState(data.m_sensor.m_accel.m_y, event.data[1]) || updated;
-                    updated = tryModifyState(data.m_sensor.m_accel.m_z, event.data[2]) || updated;
+                    updated = tryModifyState(data.m_sensor.m_ts, timestampToDsuTimestamp(event.sensor_timestamp));
+                    updated = tryModifyState(data.m_sensor.m_accel.m_x, accelToDsuAccel(-event.data[0])) || updated;
+                    updated = tryModifyState(data.m_sensor.m_accel.m_y, accelToDsuAccel(-event.data[1])) || updated;
+                    updated = tryModifyState(data.m_sensor.m_accel.m_z, accelToDsuAccel(-event.data[2])) || updated;
                     return updated;
                 });
 
@@ -73,11 +97,10 @@ std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& eve
                 [&event](auto& data)
                 {
                     bool updated{false};
-                    // TODO: check if TS changes
-                    updated = tryModifyState(data.m_sensor.m_ts, event.sensor_timestamp);
-                    updated = tryModifyState(data.m_sensor.m_gyro.m_pitch, event.data[0]) || updated;
-                    updated = tryModifyState(data.m_sensor.m_gyro.m_yaw, event.data[1]) || updated;
-                    updated = tryModifyState(data.m_sensor.m_gyro.m_roll, event.data[2]) || updated;
+                    updated = tryModifyState(data.m_sensor.m_ts, timestampToDsuTimestamp(event.sensor_timestamp));
+                    updated = tryModifyState(data.m_sensor.m_gyro.m_pitch, gyroToDsuGyro(event.data[0])) || updated;
+                    updated = tryModifyState(data.m_sensor.m_gyro.m_yaw, gyroToDsuGyro(-event.data[1])) || updated;
+                    updated = tryModifyState(data.m_sensor.m_gyro.m_roll, gyroToDsuGyro(-event.data[2])) || updated;
                     return updated;
                 });
 

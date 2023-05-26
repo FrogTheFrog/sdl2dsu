@@ -63,7 +63,6 @@ boost::asio::awaitable<void>
     const auto sdl_cleanup_guard{initializeSdl()};
     if (!sdl_cleanup_guard)
     {
-        // TODO: propagate throws
         throw std::runtime_error(std::string{"SDL could not be initialized! SDL Error: "} + SDL_GetError());
     }
 

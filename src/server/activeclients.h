@@ -24,7 +24,7 @@ public:
     std::map<std::uint8_t, std::set<ClientEndpointCounter>>
          getRelevantEndpoints(std::set<std::uint8_t> updated_indexes);
     void updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
-                           std::optional<std::uint8_t> requested_index);
+                           std::set<std::uint8_t> requested_indexes);
 
 private:
     void performLazyCleanup();

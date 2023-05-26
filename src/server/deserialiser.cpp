@@ -47,44 +47,32 @@ std::optional<ListPortsRequest> deserialiseListPorts(std::vector<std::uint8_t>& 
 std::optional<PadDataRequest> deserialisePadData(std::uint32_t client_id, std::vector<std::uint8_t>& data,
                                                  std::size_t& index)
 {
-    const auto req_flag{readUInt8(data, index)};
-    if (req_flag == 0)
-    {
-        // All pads should send the updates
-        return PadDataRequest{client_id, std::nullopt};
-    }
+    std::set<std::uint8_t> requested_indexes;
+    const auto             req_flag{readUInt8(data, index)};
 
-    if (req_flag & 0x02 /* MAC based registration */)
-    {
-        BOOST_LOG_TRIVIAL(trace) << "DSU Client requested MAC based registration, but it's not supported.";
-    }
-
-    std::optional<std::uint8_t> req_index{readUInt8(data, index)};
+    std::uint8_t req_index{readUInt8(data, index)};
     if (req_flag & 0x01 /* slot based registration */)
     {
-        if (*req_index > 3)
+        if (req_index > 3)
         {
-            BOOST_LOG_TRIVIAL(trace) << "DSU Client packet received with invalid request index: " << *req_index;
+            BOOST_LOG_TRIVIAL(trace) << "DSU Client packet received with invalid request index: " << req_index;
             return std::nullopt;
         }
-    }
-    else
-    {
-        req_index = std::nullopt;
+
+        requested_indexes.insert(req_index);
     }
 
+    // This is custom MAC address handling where the first byte corresponds to the slot index
+    std::uint8_t mac_index{readUInt8(data, index)};
     if (req_flag & 0x02 /* MAC based registration */)
     {
-        // Ignoring the rest of the message containing MAC
-        BOOST_LOG_TRIVIAL(trace) << "DSU Client requested MAC based registration, but it's not supported.";
-        if (req_flag == 0x02)
+        if (mac_index <= 3)
         {
-            // This was the only mode requested, so we can just reject this request.
-            return std::nullopt;
+            requested_indexes.insert(req_index);
         }
     }
 
-    return PadDataRequest{client_id, req_index};
+    return PadDataRequest{client_id, requested_indexes};
 }
 }  // namespace
 

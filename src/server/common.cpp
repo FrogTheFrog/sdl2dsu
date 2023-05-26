@@ -113,7 +113,9 @@ void writeUInt64LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 
 void writeFloatLE(std::vector<std::uint8_t>& data, std::size_t& index, float value)
 {
-    writeUInt32LE(data, index, static_cast<std::uint32_t>(value));
+    static_assert(sizeof(std::uint32_t) == sizeof(float));
+    const auto ptr_cast{reinterpret_cast<std::uint32_t*>(&value)};
+    writeUInt32LE(data, index, *ptr_cast);
 }
 
 //--------------------------------------------------------------------------------------------------

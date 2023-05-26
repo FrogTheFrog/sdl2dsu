@@ -118,7 +118,6 @@ struct Gyro
 
 struct Sensor
 {
-    bool          m_supported{false};
     Accel         m_accel{};
     Gyro          m_gyro{};
     std::uint64_t m_ts{0};

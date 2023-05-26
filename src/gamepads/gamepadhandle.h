@@ -22,12 +22,16 @@ public:
 
     SDL_Gamepad* getHandle() const;
     std::uint8_t getIndex() const;
-    bool         hasSensorSupport() const;
+    void         tryChangeSensorState(const std::optional<bool>& enable);
 
 private:
-    SDL_Gamepad* m_handle;
-    std::uint8_t m_index;
-    std::string  m_name;
-    bool         m_sensor_supported{false};
+    bool hasSensorSupport() const;
+    bool refreshSensorStatus();
+
+    SDL_Gamepad*   m_handle;
+    std::uint8_t   m_index;
+    std::string    m_name;
+    SDL_SensorType m_accel{SDL_SensorType::SDL_SENSOR_INVALID};
+    SDL_SensorType m_gyro{SDL_SensorType::SDL_SENSOR_INVALID};
 };
 }  // namespace gamepads

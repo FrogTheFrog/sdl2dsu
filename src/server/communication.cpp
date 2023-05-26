@@ -51,7 +51,7 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
         }
         else if (const auto request = std::get_if<PadDataRequest>(&*result))
         {
-            clients.updateRequestTime(client, request->m_client_id, request->m_requested_index);
+            clients.updateRequestTime(client, request->m_client_id, request->m_requested_indexes);
         }
 
         for (const auto& response : responses)

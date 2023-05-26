@@ -12,7 +12,8 @@ namespace server
 {
 namespace
 {
-std::vector<std::uint8_t> finalizeResponse(const std::vector<std::uint8_t>& payload, std::uint32_t server_id, DsuMsgType msg_type)
+std::vector<std::uint8_t> finalizeResponse(const std::vector<std::uint8_t>& payload, std::uint32_t server_id,
+                                           DsuMsgType msg_type)
 {
     std::size_t               index{0};
     std::vector<std::uint8_t> data(20, 0);
@@ -49,7 +50,7 @@ void serialiseGamepadHeader(const std::optional<shared::GamepadData>& gamepad_da
     if (gamepad_data)
     {
         writeUInt8(data, index, 0x02 /* connected */);
-        writeUInt8(data, index, gamepad_data->m_sensor.m_supported ? 0x02 : 0x00 /* gyro state */);
+        writeUInt8(data, index, gamepad_data->m_sensor.m_ts != 0 ? 0x02 : 0x00 /* gyro state */);
         writeUInt8(data, index,
                    gamepad_data->m_battery == shared::details::BatteryLevel::Wired ? 0x01 : 0x02 /* connection type */);
     }
@@ -60,8 +61,9 @@ void serialiseGamepadHeader(const std::optional<shared::GamepadData>& gamepad_da
         writeUInt8(data, index, 0x00 /* no connection type yet */);
     }
 
-    // MAC address is not supported
-    writeUInt8(data, index, 0x00);
+    // This is a custom MAC address implementation, since SDL does not provide any. MAC is always mapped to the pad
+    // index
+    writeUInt8(data, index, pad_index);
     writeUInt8(data, index, 0x00);
     writeUInt8(data, index, 0x00);
     writeUInt8(data, index, 0x00);

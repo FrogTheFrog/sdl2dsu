@@ -28,8 +28,8 @@ struct ListPortsRequest
 
 struct PadDataRequest
 {
-    std::uint32_t               m_client_id;
-    std::optional<std::uint8_t> m_requested_index;
+    std::uint32_t          m_client_id;
+    std::set<std::uint8_t> m_requested_indexes;
 };
 
 //--------------------------------------------------------------------------------------------------
