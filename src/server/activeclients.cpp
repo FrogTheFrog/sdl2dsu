@@ -10,34 +10,26 @@
 
 namespace server
 {
-namespace
-{
 using namespace std::chrono_literals;
 
 //--------------------------------------------------------------------------------------------------
 
-std::string makeExtendedClientId(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id)
-{
-    return {endpoint.address().to_string() + "::" + std::to_string(endpoint.port()) + "::" + std::to_string(client_id)};
-}
-}  // namespace
-
-   //--------------------------------------------------------------------------------------------------
-
-std::map<std::uint8_t, std::set<boost::asio::ip::udp::endpoint>>
+std::map<std::uint8_t, std::set<ClientEndpointCounter>>
     ActiveClients::getRelevantEndpoints(std::set<std::uint8_t> updated_indexes)
 {
     performLazyCleanup();
 
-    std::map<std::uint8_t, std::set<boost::asio::ip::udp::endpoint>> relevant_endpoints;
+    std::map<std::uint8_t, std::set<ClientEndpointCounter>> relevant_endpoints;
     for (const auto updated_index : updated_indexes)
     {
         BOOST_ASSERT(updated_index < 4);
-        for (const auto& client : m_clients)
+        for (auto& client : m_clients)
         {
-            if (client.second.m_last_request_times[updated_index] != std::nullopt)
+            auto& client_data{client.second[updated_index]};
+            if (client_data != std::nullopt)
             {
-                relevant_endpoints[updated_index].insert(client.second.m_endpoint);
+                // Note: incrementing counter here
+                relevant_endpoints[updated_index].insert({client.first, client_data->m_packet_counter++});
             }
         }
     }
@@ -49,25 +41,37 @@ std::map<std::uint8_t, std::set<boost::asio::ip::udp::endpoint>>
 void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
                                       std::optional<std::uint8_t> requested_index)
 {
-    const auto ext_client_id{makeExtendedClientId(endpoint, client_id)};
-    auto       client_data_it{m_clients.find(ext_client_id)};
+    const ClientEndpoint client_endpoint{client_id, endpoint};
+    auto                 pad_data_it{m_clients.find(client_endpoint)};
 
-    if (client_data_it == std::end(m_clients))
+    if (pad_data_it == std::end(m_clients))
     {
-        client_data_it = m_clients.insert({ext_client_id, ClientData{{}, endpoint}}).first;
+        pad_data_it = m_clients.try_emplace(client_endpoint, ClientDataPerPad{}).first;
     }
 
     const auto now{std::chrono::steady_clock::now()};
+    const auto set_client_data_timestamp = [&now](std::optional<ClientData>& client_data)
+    {
+        if (client_data)
+        {
+            client_data->m_last_request_time = now;
+        }
+        else
+        {
+            client_data = {now, 0};
+        }
+    };
+
     if (requested_index)
     {
         BOOST_ASSERT(*requested_index < 4);
-        client_data_it->second.m_last_request_times[*requested_index] = now;
+        set_client_data_timestamp(pad_data_it->second[*requested_index]);
     }
     else
     {
-        for (auto& last_request_time : client_data_it->second.m_last_request_times)
+        for (auto& client_data : pad_data_it->second)
         {
-            last_request_time = now;
+            set_client_data_timestamp(client_data);
         }
     }
 }
@@ -78,24 +82,24 @@ void ActiveClients::performLazyCleanup()
 {
     for (auto it = std::begin(m_clients); it != std::end(m_clients);)
     {
-        auto& client_data{it->second};
-        for (auto& last_request_time : client_data.m_last_request_times)
+        auto& pad_data{it->second};
+        for (auto& client_data : pad_data)
         {
-            if (last_request_time)
+            if (client_data)
             {
-                const bool has_timed_out{std::chrono::steady_clock::now() - *last_request_time > 5s};
+                const bool has_timed_out{std::chrono::steady_clock::now() - client_data->m_last_request_time > 5s};
                 if (has_timed_out)
                 {
-                    last_request_time = std::nullopt;
+                    client_data = std::nullopt;
                 }
             }
         }
 
-        auto valid_request_time_it =
-            std::find_if(std::begin(client_data.m_last_request_times), std::end(client_data.m_last_request_times),
-                         [](const auto& request_time) { return static_cast<bool>(request_time); });
+        auto valid_client_data_it =
+            std::find_if(std::begin(pad_data), std::end(pad_data),
+                         [](const auto& client_data) { return static_cast<bool>(client_data); });
 
-        if (valid_request_time_it != std::end(client_data.m_last_request_times))
+        if (valid_client_data_it != std::end(pad_data))
         {
             // This that the client is still active
             ++it;

@@ -54,8 +54,12 @@ std::optional<SdlCleanupGuard> initializeSdl()
 
 //--------------------------------------------------------------------------------------------------
 
-boost::asio::awaitable<void> enumerateAndWatch(shared::GamepadDataContainer& gamepad_data)
+boost::asio::awaitable<void>
+    enumerateAndWatch(std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)> notify_clients,
+                      shared::GamepadDataContainer&                                              gamepad_data)
 {
+    BOOST_ASSERT(notify_clients);
+
     const auto sdl_cleanup_guard{initializeSdl()};
     if (!sdl_cleanup_guard)
     {
@@ -140,7 +144,16 @@ boost::asio::awaitable<void> enumerateAndWatch(shared::GamepadDataContainer& gam
             }
         }
 
-        timer.expires_after(10ms);
+        if (!updated_indexes.empty())
+        {
+            co_await notify_clients(updated_indexes);
+            timer.expires_after(5ms);
+        }
+        else
+        {
+            timer.expires_after(10ms);
+        }
+
         co_await timer.async_wait(boost::asio::use_awaitable);
     }
 }

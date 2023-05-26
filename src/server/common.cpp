@@ -95,6 +95,29 @@ void writeUInt32LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 
 //--------------------------------------------------------------------------------------------------
 
+void writeUInt64LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uint64_t value)
+{
+    BOOST_ASSERT(index + 7 < data.size());
+
+    data[index++] = value >> 56;
+    data[index++] = value >> 48;
+    data[index++] = value >> 40;
+    data[index++] = value >> 32;
+    data[index++] = value >> 24;
+    data[index++] = value >> 16;
+    data[index++] = value >> 8;
+    data[index++] = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void writeFloatLE(std::vector<std::uint8_t>& data, std::size_t& index, float value)
+{
+    writeUInt32LE(data, index, static_cast<std::uint32_t>(value));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::uint32_t calculateCrc32(const std::vector<std::uint8_t>& data)
 {
     boost::crc_32_type crc;

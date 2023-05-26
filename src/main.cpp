@@ -19,9 +19,16 @@ boost::asio::awaitable<void> mainCoRoutine()
     const auto server_id{server::generateServerId()};
     auto       executor{co_await boost::asio::this_coro::executor};
     auto       socket{boost::asio::ip::udp::socket(executor, {boost::asio::ip::udp::v4(), 26760})};
-    auto       gamepad_data{shared::GamepadDataContainer{}};
 
-    co_await (server::listenAndRespond(server_id, gamepad_data, socket) && gamepads::enumerateAndWatch(gamepad_data));
+    server::ActiveClients        active_clients;
+    shared::GamepadDataContainer gamepad_data;
+
+    co_await (
+        server::listenAndRespond(server_id, gamepad_data, active_clients, socket)
+        && gamepads::enumerateAndWatch(
+            [&](const auto& updated_indexes)
+            { return server::distributePadData(server_id, gamepad_data, updated_indexes, active_clients, socket); },
+            gamepad_data));
 }
 
 //--------------------------------------------------------------------------------------------------

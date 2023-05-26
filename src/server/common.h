@@ -59,5 +59,13 @@ void writeUInt32LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uin
 
 //--------------------------------------------------------------------------------------------------
 
+void writeUInt64LE(std::vector<std::uint8_t>& data, std::size_t& index, std::uint64_t value);
+
+//--------------------------------------------------------------------------------------------------
+
+void writeFloatLE(std::vector<std::uint8_t>& data, std::size_t& index, float value);
+
+//--------------------------------------------------------------------------------------------------
+
 std::uint32_t calculateCrc32(const std::vector<std::uint8_t>& data);
 }  // namespace server
