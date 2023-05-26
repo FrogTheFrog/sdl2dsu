@@ -3,10 +3,10 @@
 #----------------------------------------------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.21)
-project(dsl2dsu 
+project(sdl2dsu 
         VERSION 1.0.0
         DESCRIPTION "TODO"
-        HOMEPAGE_URL "https://github.com/FrogTheFrog/dsl2dsu"
+        HOMEPAGE_URL "https://github.com/FrogTheFrog/sdl2dsu"
         LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
