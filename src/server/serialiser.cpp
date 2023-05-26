@@ -92,13 +92,13 @@ void serialiseButtonFlagsA(const shared::GamepadData& gamepad_data, std::vector<
     if (gamepad_data.m_dpad.m_up)
         flag |= 0x10;
 
-    if (gamepad_data.m_special.m_back)
-        flag |= 0x08;
-    if (gamepad_data.m_left_stick.m_pressed)
-        flag |= 0x04;
-    if (gamepad_data.m_right_stick.m_pressed)
-        flag |= 0x02;
     if (gamepad_data.m_special.m_start)
+        flag |= 0x08;
+    if (gamepad_data.m_right_stick.m_pressed)
+        flag |= 0x04;
+    if (gamepad_data.m_left_stick.m_pressed)
+        flag |= 0x02;
+    if (gamepad_data.m_special.m_back)
         flag |= 0x01;
 
     writeUInt8(data, index, flag);
@@ -109,13 +109,13 @@ void serialiseButtonFlagsA(const shared::GamepadData& gamepad_data, std::vector<
 void serialiseButtonFlagsB(const shared::GamepadData& gamepad_data, std::vector<std::uint8_t>& data, std::size_t& index)
 {
     std::uint8_t flag{0};
-    if (gamepad_data.m_abxy.m_y)
-        flag |= 0x80;
-    if (gamepad_data.m_abxy.m_b)
-        flag |= 0x40;
-    if (gamepad_data.m_abxy.m_a)
-        flag |= 0x20;
     if (gamepad_data.m_abxy.m_x)
+        flag |= 0x80;
+    if (gamepad_data.m_abxy.m_a)
+        flag |= 0x40;
+    if (gamepad_data.m_abxy.m_b)
+        flag |= 0x20;
+    if (gamepad_data.m_abxy.m_y)
         flag |= 0x10;
 
     if (gamepad_data.m_shoulder.m_right)
@@ -207,10 +207,10 @@ std::vector<std::uint8_t> serialise(const PadDataResponse& response, std::uint32
         writeUInt8(data, index, gamepad_data.m_dpad.m_right ? 0xFF : 0x00);
         writeUInt8(data, index, gamepad_data.m_dpad.m_up ? 0xFF : 0x00);
 
-        writeUInt8(data, index, gamepad_data.m_abxy.m_y ? 0xFF : 0x00);
-        writeUInt8(data, index, gamepad_data.m_abxy.m_b ? 0xFF : 0x00);
-        writeUInt8(data, index, gamepad_data.m_abxy.m_a ? 0xFF : 0x00);
         writeUInt8(data, index, gamepad_data.m_abxy.m_x ? 0xFF : 0x00);
+        writeUInt8(data, index, gamepad_data.m_abxy.m_a ? 0xFF : 0x00);
+        writeUInt8(data, index, gamepad_data.m_abxy.m_b ? 0xFF : 0x00);
+        writeUInt8(data, index, gamepad_data.m_abxy.m_y ? 0xFF : 0x00);
 
         writeUInt8(data, index, gamepad_data.m_shoulder.m_right ? 0xFF : 0x00);
         writeUInt8(data, index, gamepad_data.m_shoulder.m_left ? 0xFF : 0x00);

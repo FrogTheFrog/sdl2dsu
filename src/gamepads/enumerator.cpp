@@ -85,7 +85,6 @@ boost::asio::awaitable<void>
 
     while (true)
     {
-        std::set<std::uint8_t> updated_indexes;
         while (SDL_PollEvent(&event) != 0)
         {
             switch (event.type)
@@ -147,6 +146,7 @@ boost::asio::awaitable<void>
         if (!updated_indexes.empty())
         {
             co_await notify_clients(updated_indexes);
+            updated_indexes.clear();
             timer.expires_after(5ms);
         }
         else
