@@ -20,7 +20,7 @@ set(ENABLE_CLANG_TIDY OFF CACHE BOOL "Enable clang-tidy build (slow)")
 #----------------------------------------------------------------------------------------------------------------------
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-set(SDL_DISABLED_SUBSYSTEMS Audio Video Render Haptic Power Timers File Loadso CPUinfo Filesystem Locale Misc)
+set(SDL_DISABLED_SUBSYSTEMS Audio Video Render Power CPUinfo)
 foreach(_SUB ${SDL_DISABLED_SUBSYSTEMS})
   string(TOUPPER ${_SUB} _OPT)
   set(SDL_${_OPT} OFF)
