@@ -53,3 +53,6 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} main.cpp ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static ${Boost_LIBRARIES})
+
+# Workaround for SteamDeck
+target_compile_definitions(${PROJECT_NAME} PRIVATE BOOST_ASIO_HAS_CO_AWAIT)

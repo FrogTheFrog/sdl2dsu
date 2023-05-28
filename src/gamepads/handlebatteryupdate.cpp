@@ -35,19 +35,19 @@ std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event
     {
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_EMPTY:
             return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_battery, BL::Empty); });
+                                         [](auto& data) { return tryModifyState(data.m_battery, BL::Empty); });
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_LOW:
             return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_battery, BL::Low); });
+                                         [](auto& data) { return tryModifyState(data.m_battery, BL::Low); });
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_MEDIUM:
             return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_battery, BL::Medium); });
+                                         [](auto& data) { return tryModifyState(data.m_battery, BL::Medium); });
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_FULL:
             return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_battery, BL::Full); });
+                                         [](auto& data) { return tryModifyState(data.m_battery, BL::Full); });
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_WIRED:
             return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_battery, BL::Wired); });
+                                         [](auto& data) { return tryModifyState(data.m_battery, BL::Wired); });
 
         default:
             BOOST_LOG_TRIVIAL(trace) << "battery level value change " << event.level << " received for gamepad "
