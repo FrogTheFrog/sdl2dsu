@@ -42,9 +42,8 @@ public:
 
 std::optional<SdlCleanupGuard> initializeSdl(std::string mapping_file)
 {
-    // TODO: SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS
-    // SDL_Hint()
-    if (SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR) < 0)
+    if (SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1") < 0
+        || SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR) < 0)
     {
         return std::nullopt;
     }
