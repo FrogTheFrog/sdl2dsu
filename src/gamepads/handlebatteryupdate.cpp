@@ -31,6 +31,8 @@ bool tryModifyState(BL& from, BL to)
 
 std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event, GamepadManager& manager)
 {
+    BOOST_LOG_TRIVIAL(trace) << "battery level value change " << event.level << " received for gamepad " << event.which;
+
     switch (event.level)
     {
         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_EMPTY:
@@ -50,8 +52,6 @@ std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event
                                          [](auto& data) { return tryModifyState(data.m_battery, BL::Wired); });
 
         default:
-            BOOST_LOG_TRIVIAL(trace) << "battery level value change " << event.level << " received for gamepad "
-                                     << event.which;
             return std::nullopt;
     }
 }

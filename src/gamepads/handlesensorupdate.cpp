@@ -72,6 +72,10 @@ float gyroToDsuGyro(float value)
 
 std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& event, GamepadManager& manager)
 {
+    BOOST_LOG_TRIVIAL(trace) << "sensor (" << event.sensor << ") value change [" << event.data[0] << ", "
+                             << event.data[1] << ", " << event.data[2] << "] with TS " << event.sensor_timestamp
+                             << " received for gamepad " << event.which;
+
     switch (event.sensor)
     {
         case SDL_SensorType::SDL_SENSOR_ACCEL:
@@ -105,9 +109,6 @@ std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& eve
                 });
 
         default:
-            BOOST_LOG_TRIVIAL(trace) << "sensor (" << event.sensor << ") value change [" << event.data[0] << ", "
-                                     << event.data[1] << ", " << event.data[2] << "] with TS " << event.sensor_timestamp
-                                     << " received for gamepad " << event.which;
             return std::nullopt;
     }
 }

@@ -20,9 +20,10 @@ public:
     explicit GamepadHandle(std::uint32_t id, std::uint8_t index);
     ~GamepadHandle();
 
-    SDL_Gamepad* getHandle() const;
-    std::uint8_t getIndex() const;
-    void         tryChangeSensorState(const std::optional<bool>& enable);
+    SDL_Gamepad*       getHandle() const;
+    std::uint8_t       getIndex() const;
+    const std::string& getName() const;
+    void               tryChangeSensorState(const std::optional<bool>& enable);
 
 private:
     bool hasSensorSupport() const;

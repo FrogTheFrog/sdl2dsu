@@ -43,6 +43,10 @@ bool tryModifyState(bool& from, float to)
 
 std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent& event, GamepadManager& manager)
 {
+    BOOST_LOG_TRIVIAL(trace) << "touchpad (" << event.touchpad << ") x:" << event.x << " y:" << event.y
+                             << " pr:" << event.pressure << " fr:" << event.finger << " received for gamepad "
+                             << event.which;
+
     if (event.touchpad == 0 && (event.finger == 0 || event.finger == 1))
     {
         return manager.tryUpdateData(event.which,
@@ -65,9 +69,6 @@ std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent&
                                      });
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "touchpad (" << event.touchpad << ") x:" << event.x << " y:" << event.y
-                             << " pr:" << event.pressure << " fr:" << event.finger << " received for gamepad "
-                             << event.which;
     return std::nullopt;
 }
 }  // namespace gamepads

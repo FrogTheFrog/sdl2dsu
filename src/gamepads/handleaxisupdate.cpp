@@ -62,6 +62,9 @@ bool tryModifyAxisState(std::uint8_t& from, std::int16_t to)
 
 std::optional<std::uint8_t> handleAxisUpdate(const SDL_GamepadAxisEvent& event, GamepadManager& manager)
 {
+    BOOST_LOG_TRIVIAL(trace) << "axis (" << event.axis << ") value change " << event.value << " received for gamepad "
+                             << event.which;
+
     switch (event.axis)
     {
         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
@@ -86,8 +89,6 @@ std::optional<std::uint8_t> handleAxisUpdate(const SDL_GamepadAxisEvent& event, 
                                          { return tryModifyAxisState(data.m_right_stick.m_y, event.value); });
 
         default:
-            BOOST_LOG_TRIVIAL(trace) << "axis (" << event.axis << ") value change " << event.value
-                                     << " received for gamepad " << event.which;
             return std::nullopt;
     }
 }

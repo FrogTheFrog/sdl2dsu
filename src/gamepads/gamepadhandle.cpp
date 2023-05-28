@@ -71,6 +71,13 @@ std::uint8_t GamepadHandle::getIndex() const
 
 //--------------------------------------------------------------------------------------------------
 
+const std::string& GamepadHandle::getName() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void GamepadHandle::tryChangeSensorState(const std::optional<bool>& enable)
 {
     if (!hasSensorSupport() && !refreshSensorStatus())

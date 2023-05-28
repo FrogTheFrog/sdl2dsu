@@ -3,6 +3,7 @@
 // system includes
 #include <boost/log/trivial.hpp>
 #include <map>
+#include <regex>
 #include <set>
 
 // local includes
@@ -18,7 +19,7 @@ class GamepadManager final
     BOOST_MOVABLE_BUT_NOT_COPYABLE(GamepadManager)
 
 public:
-    explicit GamepadManager(shared::GamepadDataContainer& gamepad_data);
+    explicit GamepadManager(std::regex controller_name_filter, shared::GamepadDataContainer& gamepad_data);
 
     std::optional<std::uint8_t> tryOpenGamepad(std::uint32_t id);
     std::uint8_t                closeGamepad(std::uint32_t id);
@@ -28,6 +29,7 @@ public:
     std::optional<std::uint8_t> tryUpdateData(std::uint32_t id, UpdateFunction update_function);
 
 private:
+    std::regex                             m_controller_name_filter;
     std::set<std::uint32_t>                m_pending_ids;
     std::map<std::uint32_t, GamepadHandle> m_open_handles;
     shared::GamepadDataContainer&          m_gamepad_data;

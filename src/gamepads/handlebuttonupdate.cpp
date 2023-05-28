@@ -35,6 +35,9 @@ bool shouldTryToEnableSensor(const shared::details::Special& special)
 
 std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& event, GamepadManager& manager)
 {
+    BOOST_LOG_TRIVIAL(trace) << "button (" << event.button << ") event " << event.state << " received for gamepad "
+                             << event.which;
+
     switch (event.button)
     {
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
@@ -125,8 +128,6 @@ std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& eve
                                          { return tryModifyState(data.m_touchpad.m_pressed, event.state); });
 
         default:
-            BOOST_LOG_TRIVIAL(trace) << "button (" << event.button << ") event " << event.state
-                                     << " received for gamepad " << event.which;
             return std::nullopt;
     }
 }

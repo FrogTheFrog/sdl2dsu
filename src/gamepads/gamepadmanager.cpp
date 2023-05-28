@@ -26,8 +26,9 @@ std::optional<std::uint8_t> findFreeIndex(const shared::GamepadDataContainer& ga
 
 //--------------------------------------------------------------------------------------------------
 
-GamepadManager::GamepadManager(shared::GamepadDataContainer& gamepad_data)
-    : m_gamepad_data{gamepad_data}
+GamepadManager::GamepadManager(std::regex controller_name_filter, shared::GamepadDataContainer& gamepad_data)
+    : m_controller_name_filter{std::move(controller_name_filter)}
+    , m_gamepad_data{gamepad_data}
 {
 }
 
@@ -50,9 +51,17 @@ std::optional<std::uint8_t> GamepadManager::tryOpenGamepad(std::uint32_t id)
     // Emplacing is required first due to no-copy-ctor
     const auto result{m_open_handles.try_emplace(id, id, *index)};
     BOOST_ASSERT(result.second);
+    const auto& handle{result.first->second};
 
-    if (result.first->second.getHandle() == nullptr)
+    if (handle.getHandle() == nullptr)
     {
+        m_open_handles.erase(id);
+        return std::nullopt;
+    }
+
+    if (!std::regex_search(handle.getName(), m_controller_name_filter))
+    {
+        BOOST_LOG_TRIVIAL(info) << handle.getName() << " does not match the filter.";
         m_open_handles.erase(id);
         return std::nullopt;
     }
