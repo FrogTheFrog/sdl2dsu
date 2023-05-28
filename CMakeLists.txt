@@ -19,6 +19,32 @@ set(ENABLE_CLANG_TIDY OFF CACHE BOOL "Enable clang-tidy build (slow)")
 # Setup SDL
 #----------------------------------------------------------------------------------------------------------------------
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(SDL_DISKAUDIO OFF)
+set(SDL_DUMMYAUDIO OFF)
+set(SDL_DUMMYVIDEO OFF)
+set(SDL_OPENGL OFF)
+set(SDL_OPENGLES OFF)
+set(SDL_OSS OFF)
+set(SDL_ALSA OFF)
+set(SDL_JACK OFF)
+set(SDL_PIPEWIRE OFF)
+set(SDL_PULSEAUDIO OFF)
+set(SDL_SNDIO OFF)
+set(SDL_X11 OFF)
+set(SDL_WAYLAND OFF)
+set(SDL_RPI OFF)
+set(SDL_ROCKCHIP OFF)
+set(SDL_COCOA OFF)
+set(SDL_DIRECTX OFF)
+set(SDL_WASAPI OFF)
+set(SDL_RENDER_D3D OFF)
+set(SDL_RENDER_METAL OFF)
+set(SDL_VIVANTE OFF)
+set(SDL_VULKAN OFF)
+set(SDL_METAL OFF)
+set(SDL_KMSDRM OFF)
+set(SDL_OFFSCREEN OFF)
 set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
 add_subdirectory(external/sdl)
@@ -28,7 +54,7 @@ add_subdirectory(external/sdl)
 #----------------------------------------------------------------------------------------------------------------------
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.81.0 COMPONENTS log log_setup REQUIRED)
+find_package(Boost 1.80.0 COMPONENTS log log_setup REQUIRED)
 
 #----------------------------------------------------------------------------------------------------------------------
 # CLang-Tidy
