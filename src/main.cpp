@@ -51,6 +51,9 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
 
         if (vars.contains("help"))
         {
+            std::cout << "Example usage:" << std::endl
+                      << "  sdl2dsu --port 26760 --filter \"Dualsense\"" << std::endl
+                      << std::endl;
             std::cout << desc << std::endl;
             return false;
         }
