@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(sdl2dsu 
         VERSION 1.0.0
-        DESCRIPTION "TODO"
+        DESCRIPTION "A simple application that map SDL input to DSU protocol (cemuhook)."
         HOMEPAGE_URL "https://github.com/FrogTheFrog/sdl2dsu"
         LANGUAGES C CXX)
 
