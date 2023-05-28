@@ -169,7 +169,7 @@ boost::asio::awaitable<void>
             updated_indexes.clear();
         }
 
-        timer.expires_after(10ms);
+        timer.expires_after(1ms);
         co_await timer.async_wait(boost::asio::use_awaitable);
     }
 }
