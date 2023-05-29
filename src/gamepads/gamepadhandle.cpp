@@ -82,6 +82,7 @@ void GamepadHandle::tryChangeSensorState(const std::optional<bool>& enable)
 {
     if (!hasSensorSupport() && !refreshSensorStatus())
     {
+        BOOST_LOG_TRIVIAL(info) << m_name << " does not provide sensor information.";
         return;
     }
 

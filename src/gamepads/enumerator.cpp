@@ -116,7 +116,7 @@ boost::asio::awaitable<void>
                 }
                 case SDL_EVENT_GAMEPAD_REMOVED:
                 {
-                    updated_indexes.insert(manager.closeGamepad(event.gdevice.which));
+                    insert_if_updated(manager.closeGamepad(event.gdevice.which));
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_AXIS_MOTION:

@@ -55,7 +55,7 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
                       << "  sdl2dsu --port 26760 --filter \"Dualsense\"" << std::endl
                       << std::endl;
             std::cout
-                << "To toggle sensor ON/OFF, press A + Y + DPAD UP + DPAD DOWN (or their equivalent) at the same time"
+                << "To toggle sensor ON/OFF, press A + Y + DPAD UP + BACK (or their equivalent) at the same time"
                 << std::endl
                 << std::endl;
             std::cout << desc << std::endl;

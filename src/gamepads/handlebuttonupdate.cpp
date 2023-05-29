@@ -27,7 +27,7 @@ bool tryModifyState(bool& from, std::uint8_t to)
 
 bool shouldTryToToggleSensor(const shared::GamepadData& data)
 {
-    return data.m_abxy.m_a && data.m_abxy.m_y && data.m_dpad.m_up && data.m_dpad.m_down;
+    return data.m_special.m_back && data.m_abxy.m_a && data.m_abxy.m_y && data.m_dpad.m_up;
 }
 }  // namespace
 

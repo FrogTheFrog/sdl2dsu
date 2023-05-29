@@ -22,7 +22,7 @@ public:
     explicit GamepadManager(std::regex controller_name_filter, shared::GamepadDataContainer& gamepad_data);
 
     std::optional<std::uint8_t> tryOpenGamepad(std::uint32_t id);
-    std::uint8_t                closeGamepad(std::uint32_t id);
+    std::optional<std::uint8_t> closeGamepad(std::uint32_t id);
     void                        tryChangeSensorState(std::uint32_t id, const std::optional<bool>& enable);
 
     template<class UpdateFunction>

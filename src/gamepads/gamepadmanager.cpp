@@ -72,12 +72,15 @@ std::optional<std::uint8_t> GamepadManager::tryOpenGamepad(std::uint32_t id)
 
 //--------------------------------------------------------------------------------------------------
 
-std::uint8_t GamepadManager::closeGamepad(std::uint32_t id)
+std::optional<std::uint8_t> GamepadManager::closeGamepad(std::uint32_t id)
 {
     m_pending_ids.erase(id);
 
     auto open_handle_it{m_open_handles.find(id)};
-    BOOST_ASSERT(open_handle_it != std::end(m_open_handles));
+    if (open_handle_it == std::end(m_open_handles))
+    {
+        return std::nullopt;
+    }
 
     const auto index{open_handle_it->second.getIndex()};
     m_gamepad_data[open_handle_it->second.getIndex()] = std::nullopt;
