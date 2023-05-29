@@ -6,8 +6,9 @@ A simple application that map SDL input to DSU protocol (cemuhook).
 
 1. `git clone https://github.com/FrogTheFrog/sdl2dsu.git`
 2. `cd sdl2dsu`
-3. `cmake -DCMAKE_BUILD_TYPE:STRING=Release -G Ninja -B ./build`
-4. `cmake --build build`
+3. `git submodule update --init --recursive`
+4. `cmake -DCMAKE_BUILD_TYPE:STRING=Release -G Ninja -B ./build`
+5. `cmake --build build`
 
 Binary will be located in `build/src`.
 
