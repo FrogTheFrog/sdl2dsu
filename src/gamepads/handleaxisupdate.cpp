@@ -62,8 +62,8 @@ bool tryModifyAxisState(std::uint8_t& from, std::int16_t to)
 
 std::optional<std::uint8_t> handleAxisUpdate(const SDL_GamepadAxisEvent& event, GamepadManager& manager)
 {
-    BOOST_LOG_TRIVIAL(trace) << "axis (" << event.axis << ") value change " << event.value << " received for gamepad "
-                             << event.which;
+    BOOST_LOG_TRIVIAL(trace) << "axis (" << static_cast<int>(event.axis) << ") value change "
+                             << static_cast<int>(event.value) << " received for gamepad " << event.which;
 
     return manager.tryUpdateData(event.which,
                                  [&event](shared::GamepadData& data)

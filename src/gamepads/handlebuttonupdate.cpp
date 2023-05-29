@@ -35,8 +35,8 @@ bool shouldTryToToggleSensor(const shared::GamepadData& data)
 
 std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& event, GamepadManager& manager)
 {
-    BOOST_LOG_TRIVIAL(trace) << "button (" << event.button << ") event " << event.state << " received for gamepad "
-                             << event.which;
+    BOOST_LOG_TRIVIAL(trace) << "button (" << static_cast<int>(event.button) << ") event "
+                             << static_cast<int>(event.state) << " received for gamepad " << event.which;
 
     return manager.tryUpdateData(event.which,
                                  [&event, &manager](shared::GamepadData& data)
