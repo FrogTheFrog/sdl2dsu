@@ -25,6 +25,21 @@ std::string getGUIDString(std::uint32_t id)
 
     return std::string(buffer.data());
 }
+
+//--------------------------------------------------------------------------------------------------
+
+std::string getInstanceName(std::uint32_t id)
+{
+    const auto name{SDL_GetGamepadInstanceName(id)};
+
+    if (name == nullptr)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to get instance name string: " << SDL_GetError();
+        return {};
+    }
+
+    return std::string{name};
+}
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -32,7 +47,7 @@ std::string getGUIDString(std::uint32_t id)
 GamepadHandle::GamepadHandle(std::uint32_t id, std::uint8_t index)
     : m_handle{SDL_OpenGamepad(id)}
     , m_index{index}
-    , m_name{SDL_GetGamepadInstanceName(id)}
+    , m_name{getInstanceName(id)}
 {
     if (m_handle)
     {
