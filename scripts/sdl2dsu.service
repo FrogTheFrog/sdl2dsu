@@ -1,0 +1,11 @@
+[Unit]
+Description=sdl2dsu
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/deck/Desktop/sdl2dsu/build/src/sdl2dsu --port 26760 --filter "Dualsense"
+
+[Install]
+WantedBy=multi-user.target
