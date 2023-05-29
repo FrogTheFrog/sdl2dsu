@@ -25,9 +25,9 @@ bool tryModifyState(bool& from, std::uint8_t to)
 
 //--------------------------------------------------------------------------------------------------
 
-bool shouldTryToEnableSensor(const shared::details::Special& special)
+bool shouldTryToToggleSensor(const shared::GamepadData& data)
 {
-    return special.m_back && special.m_guide && special.m_start;
+    return data.m_abxy.m_a && data.m_abxy.m_y && data.m_dpad.m_up && data.m_dpad.m_down;
 }
 }  // namespace
 
@@ -38,97 +38,88 @@ std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& eve
     BOOST_LOG_TRIVIAL(trace) << "button (" << event.button << ") event " << event.state << " received for gamepad "
                              << event.which;
 
-    switch (event.button)
-    {
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
-            return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_abxy.m_a, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_B:
-            return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_abxy.m_b, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_X:
-            return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_abxy.m_x, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_Y:
-            return manager.tryUpdateData(event.which,
-                                         [&event](auto& data) { return tryModifyState(data.m_abxy.m_y, event.state); });
+    return manager.tryUpdateData(event.which,
+                                 [&event, &manager](shared::GamepadData& data)
+                                 {
+                                     bool updated{false};
+                                     switch (event.button)
+                                     {
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
+                                             updated = tryModifyState(data.m_abxy.m_a, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_B:
+                                             updated = tryModifyState(data.m_abxy.m_b, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_X:
+                                             updated = tryModifyState(data.m_abxy.m_x, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_Y:
+                                             updated = tryModifyState(data.m_abxy.m_y, event.state);
+                                             break;
 
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_UP:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_dpad.m_up, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_DOWN:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_dpad.m_down, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_LEFT:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_dpad.m_left, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_dpad.m_right, event.state); });
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_UP:
+                                             updated = tryModifyState(data.m_dpad.m_up, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+                                             updated = tryModifyState(data.m_dpad.m_down, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+                                             updated = tryModifyState(data.m_dpad.m_left, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+                                             updated = tryModifyState(data.m_dpad.m_right, event.state);
+                                             break;
 
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_BACK:
-            return manager.tryUpdateData(event.which,
-                                         [&event, &manager](auto& data)
-                                         {
-                                             if (tryModifyState(data.m_special.m_back, event.state))
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_BACK:
+                                             updated = tryModifyState(data.m_special.m_back, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_GUIDE:
+                                             updated = tryModifyState(data.m_special.m_guide, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_START:
+                                             updated = tryModifyState(data.m_special.m_start, event.state);
+                                             break;
+
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
+                                             updated = tryModifyState(data.m_shoulder.m_left, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER:
+                                             updated = tryModifyState(data.m_shoulder.m_right, event.state);
+                                             break;
+
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_LEFT_STICK:
+                                             updated = tryModifyState(data.m_left_stick.m_pressed, event.state);
+                                             break;
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_RIGHT_STICK:
+                                             updated = tryModifyState(data.m_right_stick.m_pressed, event.state);
+                                             break;
+
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_TOUCHPAD:
+                                             updated = tryModifyState(data.m_touchpad.m_pressed, event.state);
+                                             break;
+
+                                         default:
+                                             break;
+                                     }
+
+                                     // Handle the sensor toggle
+                                     switch (event.button)
+                                     {
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_Y:
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_UP:
+                                         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+                                             if (updated && shouldTryToToggleSensor(data))
                                              {
-                                                 if (shouldTryToEnableSensor(data.m_special))
-                                                 {
-                                                     manager.tryChangeSensorState(event.which, std::nullopt);
-                                                 }
-                                                 return true;
+                                                 manager.tryChangeSensorState(event.which, std::nullopt);
                                              }
-                                             return false;
-                                         });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_GUIDE:
-            return manager.tryUpdateData(event.which,
-                                         [&event, &manager](auto& data)
-                                         {
-                                             if (tryModifyState(data.m_special.m_guide, event.state))
-                                             {
-                                                 if (shouldTryToEnableSensor(data.m_special))
-                                                 {
-                                                     manager.tryChangeSensorState(event.which, std::nullopt);
-                                                 }
-                                                 return true;
-                                             }
-                                             return false;
-                                         });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_START:
-            return manager.tryUpdateData(event.which,
-                                         [&event, &manager](auto& data)
-                                         {
-                                             if (tryModifyState(data.m_special.m_start, event.state))
-                                             {
-                                                 if (shouldTryToEnableSensor(data.m_special))
-                                                 {
-                                                     manager.tryChangeSensorState(event.which, std::nullopt);
-                                                 }
-                                                 return true;
-                                             }
-                                             return false;
-                                         });
+                                             break;
 
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_shoulder.m_left, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_shoulder.m_right, event.state); });
+                                         default:
+                                             break;
+                                     }
 
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_LEFT_STICK:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_left_stick.m_pressed, event.state); });
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_RIGHT_STICK:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_right_stick.m_pressed, event.state); });
-
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_TOUCHPAD:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyState(data.m_touchpad.m_pressed, event.state); });
-
-        default:
-            return std::nullopt;
-    }
+                                     return updated;
+                                 });
 }
 }  // namespace gamepads

@@ -76,40 +76,40 @@ std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& eve
                              << event.data[1] << ", " << event.data[2] << "] with TS " << event.sensor_timestamp
                              << " received for gamepad " << event.which;
 
-    switch (event.sensor)
-    {
-        case SDL_SensorType::SDL_SENSOR_ACCEL:
-        case SDL_SensorType::SDL_SENSOR_ACCEL_L:
-        case SDL_SensorType::SDL_SENSOR_ACCEL_R:
-            return manager.tryUpdateData(
-                event.which,
-                [&event](auto& data)
+    return manager.tryUpdateData(
+        event.which,
+        [&event, &manager](shared::GamepadData& data)
+        {
+            bool updated{false};
+            switch (event.sensor)
+            {
+                case SDL_SensorType::SDL_SENSOR_ACCEL:
+                case SDL_SensorType::SDL_SENSOR_ACCEL_L:
+                case SDL_SensorType::SDL_SENSOR_ACCEL_R:
                 {
-                    bool updated{false};
                     updated = tryModifyState(data.m_sensor.m_ts, timestampToDsuTimestamp(event.sensor_timestamp));
                     updated = tryModifyState(data.m_sensor.m_accel.m_x, accelToDsuAccel(-event.data[0])) || updated;
                     updated = tryModifyState(data.m_sensor.m_accel.m_y, accelToDsuAccel(-event.data[1])) || updated;
                     updated = tryModifyState(data.m_sensor.m_accel.m_z, accelToDsuAccel(-event.data[2])) || updated;
-                    return updated;
-                });
+                    break;
+                }
 
-        case SDL_SensorType::SDL_SENSOR_GYRO:
-        case SDL_SensorType::SDL_SENSOR_GYRO_L:
-        case SDL_SensorType::SDL_SENSOR_GYRO_R:
-            return manager.tryUpdateData(
-                event.which,
-                [&event](auto& data)
+                case SDL_SensorType::SDL_SENSOR_GYRO:
+                case SDL_SensorType::SDL_SENSOR_GYRO_L:
+                case SDL_SensorType::SDL_SENSOR_GYRO_R:
                 {
-                    bool updated{false};
                     updated = tryModifyState(data.m_sensor.m_ts, timestampToDsuTimestamp(event.sensor_timestamp));
                     updated = tryModifyState(data.m_sensor.m_gyro.m_pitch, gyroToDsuGyro(event.data[0])) || updated;
                     updated = tryModifyState(data.m_sensor.m_gyro.m_yaw, gyroToDsuGyro(-event.data[1])) || updated;
                     updated = tryModifyState(data.m_sensor.m_gyro.m_roll, gyroToDsuGyro(-event.data[2])) || updated;
-                    return updated;
-                });
+                    break;
+                }
 
-        default:
-            return std::nullopt;
-    }
+                default:
+                    break;
+            }
+
+            return updated;
+        });
 }
 }  // namespace gamepads

@@ -65,31 +65,38 @@ std::optional<std::uint8_t> handleAxisUpdate(const SDL_GamepadAxisEvent& event, 
     BOOST_LOG_TRIVIAL(trace) << "axis (" << event.axis << ") value change " << event.value << " received for gamepad "
                              << event.which;
 
-    switch (event.axis)
-    {
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyTriggerState(data.m_trigger.m_left, event.value); });
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyTriggerState(data.m_trigger.m_right, event.value); });
+    return manager.tryUpdateData(event.which,
+                                 [&event, &manager](shared::GamepadData& data)
+                                 {
+                                     bool updated{false};
+                                     switch (event.axis)
+                                     {
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
+                                             updated = tryModifyTriggerState(data.m_trigger.m_left, event.value);
+                                             break;
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
+                                             updated = tryModifyTriggerState(data.m_trigger.m_right, event.value);
+                                             break;
 
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFTX:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyAxisState(data.m_left_stick.m_x, event.value); });
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFTY:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyAxisState(data.m_left_stick.m_y, event.value); });
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFTX:
+                                             updated = tryModifyAxisState(data.m_left_stick.m_x, event.value);
+                                             break;
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_LEFTY:
+                                             updated = tryModifyAxisState(data.m_left_stick.m_y, event.value);
+                                             break;
 
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHTX:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyAxisState(data.m_right_stick.m_x, event.value); });
-        case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHTY:
-            return manager.tryUpdateData(event.which, [&event](auto& data)
-                                         { return tryModifyAxisState(data.m_right_stick.m_y, event.value); });
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHTX:
+                                             updated = tryModifyAxisState(data.m_right_stick.m_x, event.value);
+                                             break;
+                                         case SDL_GamepadAxis::SDL_GAMEPAD_AXIS_RIGHTY:
+                                             updated = tryModifyAxisState(data.m_right_stick.m_y, event.value);
+                                             break;
 
-        default:
-            return std::nullopt;
-    }
+                                         default:
+                                             break;
+                                     }
+
+                                     return updated;
+                                 });
 }
 }  // namespace gamepads

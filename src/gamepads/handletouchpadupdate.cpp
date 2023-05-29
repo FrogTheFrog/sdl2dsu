@@ -50,7 +50,7 @@ std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent&
     if (event.touchpad == 0 && (event.finger == 0 || event.finger == 1))
     {
         return manager.tryUpdateData(event.which,
-                                     [&event](auto& data)
+                                     [&event](shared::GamepadData& data)
                                      {
                                          shared::details::Touch& touch{event.finger == 0
                                                                            ? data.m_touchpad.m_first_touch
