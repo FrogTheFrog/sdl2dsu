@@ -66,7 +66,7 @@ std::optional<std::uint8_t> handleAxisUpdate(const SDL_GamepadAxisEvent& event, 
                              << event.which;
 
     return manager.tryUpdateData(event.which,
-                                 [&event, &manager](shared::GamepadData& data)
+                                 [&event](shared::GamepadData& data)
                                  {
                                      bool updated{false};
                                      switch (event.axis)

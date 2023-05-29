@@ -34,7 +34,7 @@ std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event
     BOOST_LOG_TRIVIAL(trace) << "battery level value change " << event.level << " received for gamepad " << event.which;
 
     return manager.tryUpdateData(event.which,
-                                 [&event, &manager](shared::GamepadData& data)
+                                 [&event](shared::GamepadData& data)
                                  {
                                      bool updated{false};
                                      switch (event.level)

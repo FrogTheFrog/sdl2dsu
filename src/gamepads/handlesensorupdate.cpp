@@ -78,7 +78,7 @@ std::optional<std::uint8_t> handleSensorUpdate(const SDL_GamepadSensorEvent& eve
 
     return manager.tryUpdateData(
         event.which,
-        [&event, &manager](shared::GamepadData& data)
+        [&event](shared::GamepadData& data)
         {
             bool updated{false};
             switch (event.sensor)
