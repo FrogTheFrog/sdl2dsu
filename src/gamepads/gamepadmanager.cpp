@@ -89,7 +89,7 @@ std::optional<std::uint8_t> GamepadManager::closeGamepad(std::uint32_t id)
     std::set<std::uint32_t> current_pending_ids;
     std::swap(m_pending_ids, current_pending_ids);
 
-    for (const auto& pending_id : m_pending_ids)
+    for (const auto& pending_id : current_pending_ids)
     {
         const auto new_index{tryOpenGamepad(pending_id)};
         if (new_index)
