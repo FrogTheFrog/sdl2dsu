@@ -66,7 +66,7 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
 
         po::notify(vars);
         controller_name_filter = std::regex{filter, std::regex_constants::icase | std::regex_constants::ECMAScript};
-        sensor_auto_toggle     = no_auto_toggle;
+        sensor_auto_toggle     = !no_auto_toggle;
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= log_severity);
     }
     catch (const std::exception& exception)

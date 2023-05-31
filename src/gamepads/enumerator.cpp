@@ -78,8 +78,8 @@ std::optional<SdlCleanupGuard> initializeSdl(std::string mapping_file)
 //--------------------------------------------------------------------------------------------------
 
 boost::asio::awaitable<void>
-    enumerateAndWatch(const std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)>& notify_clients,
-                      const std::function<std::size_t()>& get_number_of_active_clients,
+    enumerateAndWatch(std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)> notify_clients,
+                      std::function<std::size_t()> get_number_of_active_clients,
                       const std::regex& controller_name_filter, const std::string& mapping_file,
                       bool sensor_auto_toggle, shared::GamepadDataContainer& gamepad_data)
 {
@@ -165,12 +165,14 @@ boost::asio::awaitable<void>
             }
         }
 
-        if (sensor_auto_toggle && (std::chrono::steady_clock::now() - last_sensor_check_ts) > 10ms)
+        const auto now{std::chrono::steady_clock::now()};
+        if (sensor_auto_toggle && (now - last_sensor_check_ts) > 10s)
         {
             const bool enable{get_number_of_active_clients() > 0};
-
             BOOST_LOG_TRIVIAL(debug) << "Changing sensor state for open controllers to "
                                      << (enable ? "ENABLED" : "DISABLED");
+
+            last_sensor_check_ts = now;
             manager.tryChangeSensorStateForAll(enable);
         }
 
