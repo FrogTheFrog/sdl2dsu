@@ -81,7 +81,16 @@ void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endp
 
 //--------------------------------------------------------------------------------------------------
 
-void ActiveClients::performLazyCleanup()
+std::size_t ActiveClients::getNumberOfClients() const
+{
+    performLazyCleanup();
+
+    return m_clients.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ActiveClients::performLazyCleanup() const
 {
     for (auto it = std::begin(m_clients); it != std::end(m_clients);)
     {

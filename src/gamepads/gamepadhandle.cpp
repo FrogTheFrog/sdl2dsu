@@ -93,39 +93,6 @@ const std::string& GamepadHandle::getName() const
 
 //--------------------------------------------------------------------------------------------------
 
-void GamepadHandle::tryChangeSensorState(const std::optional<bool>& enable)
-{
-    if (!hasSensorSupport() && !refreshSensorStatus())
-    {
-        BOOST_LOG_TRIVIAL(info) << m_name << " does not provide sensor information.";
-        return;
-    }
-
-    const auto to_sdl_bool = [](bool value) { return value ? SDL_TRUE : SDL_FALSE; };
-
-    const bool accel_enabled{SDL_GamepadSensorEnabled(m_handle, m_accel) == SDL_TRUE};
-    const bool gyro_enabled{SDL_GamepadSensorEnabled(m_handle, m_gyro) == SDL_TRUE};
-
-    const bool current_state{accel_enabled && gyro_enabled};
-    const bool new_state{enable ? *enable : !current_state /* toggle */};
-
-    if (new_state != current_state)
-    {
-        BOOST_LOG_TRIVIAL(info) << "Changing accel and gyro state to " << (new_state ? "ENABLED" : "DISABLED")
-                                << " for " << m_name;
-        if (SDL_SetGamepadSensorEnabled(m_handle, m_accel, to_sdl_bool(new_state)) < 0)
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to change accel state: " << SDL_GetError();
-        }
-        if (SDL_SetGamepadSensorEnabled(m_handle, m_gyro, to_sdl_bool(new_state)) < 0)
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to change gyro state: " << SDL_GetError();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool GamepadHandle::hasSensorSupport() const
 {
     return m_accel != SDL_SensorType::SDL_SENSOR_INVALID && m_gyro != SDL_SensorType::SDL_SENSOR_INVALID;
@@ -162,5 +129,38 @@ bool GamepadHandle::refreshSensorStatus()
     }
 
     return hasSensorSupport();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GamepadHandle::tryChangeSensorState(const std::optional<bool>& enable)
+{
+    if (!hasSensorSupport() && !refreshSensorStatus())
+    {
+        BOOST_LOG_TRIVIAL(info) << m_name << " does not provide sensor information.";
+        return;
+    }
+
+    const auto to_sdl_bool = [](bool value) { return value ? SDL_TRUE : SDL_FALSE; };
+
+    const bool accel_enabled{SDL_GamepadSensorEnabled(m_handle, m_accel) == SDL_TRUE};
+    const bool gyro_enabled{SDL_GamepadSensorEnabled(m_handle, m_gyro) == SDL_TRUE};
+
+    const bool current_state{accel_enabled && gyro_enabled};
+    const bool new_state{enable ? *enable : !current_state /* toggle */};
+
+    if (new_state != current_state)
+    {
+        BOOST_LOG_TRIVIAL(info) << "Changing accel and gyro state to " << (new_state ? "ENABLED" : "DISABLED")
+                                << " for " << m_name;
+        if (SDL_SetGamepadSensorEnabled(m_handle, m_accel, to_sdl_bool(new_state)) < 0)
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to change accel state: " << SDL_GetError();
+        }
+        if (SDL_SetGamepadSensorEnabled(m_handle, m_gyro, to_sdl_bool(new_state)) < 0)
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to change gyro state: " << SDL_GetError();
+        }
+    }
 }
 }  // namespace gamepads

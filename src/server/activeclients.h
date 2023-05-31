@@ -22,12 +22,13 @@ public:
     explicit ActiveClients() = default;
 
     std::map<std::uint8_t, std::set<ClientEndpointCounter>>
-         getRelevantEndpoints(std::set<std::uint8_t> updated_indexes);
-    void updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
-                           std::set<std::uint8_t> requested_indexes);
+                getRelevantEndpoints(std::set<std::uint8_t> updated_indexes);
+    void        updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
+                                  std::set<std::uint8_t> requested_indexes);
+    std::size_t getNumberOfClients() const;
 
 private:
-    void performLazyCleanup();
+    void performLazyCleanup() const;
 
     struct ClientData
     {
@@ -36,6 +37,6 @@ private:
     };
 
     using ClientDataPerPad = std::array<std::optional<ClientData>, 4>;
-    std::map<ClientEndpoint, ClientDataPerPad> m_clients;
+    mutable std::map<ClientEndpoint, ClientDataPerPad> m_clients;
 };
 }  // namespace server

@@ -111,4 +111,19 @@ void GamepadManager::tryChangeSensorState(std::uint32_t id, const std::optional<
         open_handle_it->second.tryChangeSensorState(enable);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+
+void GamepadManager::tryChangeSensorStateForAll(const std::optional<bool>& enable)
+{
+    for (auto& [id, handle] : m_open_handles)
+    {
+        if (!handle.hasSensorSupport() && !handle.refreshSensorStatus())
+        {
+            continue;
+        }
+
+        handle.tryChangeSensorState(enable);
+    }
+}
 }  // namespace gamepads

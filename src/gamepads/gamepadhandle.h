@@ -23,12 +23,12 @@ public:
     SDL_Gamepad*       getHandle() const;
     std::uint8_t       getIndex() const;
     const std::string& getName() const;
-    void               tryChangeSensorState(const std::optional<bool>& enable);
+    bool               hasSensorSupport() const;
+
+    bool refreshSensorStatus();
+    void tryChangeSensorState(const std::optional<bool>& enable);
 
 private:
-    bool hasSensorSupport() const;
-    bool refreshSensorStatus();
-
     SDL_Gamepad*   m_handle;
     std::uint8_t   m_index;
     std::string    m_name;

@@ -25,7 +25,7 @@ void exceptionHandler(std::exception_ptr exception)
 //--------------------------------------------------------------------------------------------------
 
 bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& port, std::regex& controller_name_filter,
-                      std::string& mapping_file)
+                      std::string& mapping_file, bool& sensor_auto_toggle)
 {
     try
     {
@@ -34,12 +34,15 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
 
         sl                      log_severity;
         std::string             filter;
+        bool                    no_auto_toggle;
         po::options_description desc("Available options");
         desc.add_options()                                                                                            //
             ("help", "print this help message")                                                                       //
             ("port", po::value<std::uint16_t>(&port)->required(), "port to use for DSU server")                       //
             ("filter", po::value<std::string>(&filter)->default_value(".*"),                                          //
              "regular expression (case-insensitive) to filter the controller names that we want to observe")          //
+            ("noautotoggle", po::value<bool>(&no_auto_toggle)->implicit_value(false),                                 //
+             "disable the lazy automatic sensor toggle when there are no clients or some clients have connected")     //
             ("mappingfile", po::value<std::string>(&mapping_file),                                                    //
              "path to the optional mapping file to be used. Will try to load gamecontrollerdb.txt by default if it "  //
              "exists in the same directory.")                                                                         //
@@ -54,16 +57,16 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
             std::cout << "Example usage:" << std::endl
                       << "  sdl2dsu --port 26760 --filter \"Dualsense\"" << std::endl
                       << std::endl;
-            std::cout
-                << "To toggle sensor ON/OFF, press A + Y + DPAD UP + BACK (or their equivalent) at the same time"
-                << std::endl
-                << std::endl;
+            std::cout << "To toggle sensor ON/OFF, press A + Y + DPAD UP + BACK (or their equivalent) at the same time"
+                      << std::endl
+                      << std::endl;
             std::cout << desc << std::endl;
             return false;
         }
 
         po::notify(vars);
         controller_name_filter = std::regex{filter, std::regex_constants::icase | std::regex_constants::ECMAScript};
+        sensor_auto_toggle     = no_auto_toggle;
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= log_severity);
     }
     catch (const std::exception& exception)
@@ -85,7 +88,8 @@ int main(int argc, char** argv)
         std::uint16_t port;
         std::regex    controller_name_filter;
         std::string   mapping_file;
-        if (!parseProgramArgs(argc, argv, port, controller_name_filter, mapping_file))
+        bool          sensor_auto_toggle;
+        if (!parseProgramArgs(argc, argv, port, controller_name_filter, mapping_file, sensor_auto_toggle))
         {
             return EXIT_FAILURE;
         }
@@ -112,7 +116,8 @@ int main(int argc, char** argv)
             gamepads::enumerateAndWatch(
                 [&](const auto& updated_indexes)
                 { return server::distributePadData(server_id, gamepad_data, updated_indexes, active_clients, socket); },
-                controller_name_filter, mapping_file, gamepad_data),
+                [&]() { return active_clients.getNumberOfClients(); }, controller_name_filter, mapping_file,
+                sensor_auto_toggle, gamepad_data),
             exceptionHandler);
 
         io_context.run();

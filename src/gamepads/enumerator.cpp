@@ -78,11 +78,13 @@ std::optional<SdlCleanupGuard> initializeSdl(std::string mapping_file)
 //--------------------------------------------------------------------------------------------------
 
 boost::asio::awaitable<void>
-    enumerateAndWatch(std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)> notify_clients,
+    enumerateAndWatch(const std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)>& notify_clients,
+                      const std::function<std::size_t()>& get_number_of_active_clients,
                       const std::regex& controller_name_filter, const std::string& mapping_file,
-                      shared::GamepadDataContainer& gamepad_data)
+                      bool sensor_auto_toggle, shared::GamepadDataContainer& gamepad_data)
 {
     BOOST_ASSERT(notify_clients);
+    BOOST_ASSERT(get_number_of_active_clients);
 
     const auto sdl_cleanup_guard{initializeSdl(mapping_file)};
     if (!sdl_cleanup_guard)
@@ -90,12 +92,8 @@ boost::asio::awaitable<void>
         throw std::runtime_error(std::string{"SDL could not be initialized! SDL Error: "} + SDL_GetError());
     }
 
-    SDL_Event                 event;
-    boost::asio::steady_timer timer(co_await boost::asio::this_coro::executor);
-    std::set<std::uint8_t>    updated_indexes;
-    GamepadManager            manager{controller_name_filter, gamepad_data};
-
-    const auto insert_if_updated = [&updated_indexes](const std::optional<std::uint8_t>& updated_index)
+    std::set<std::uint8_t> updated_indexes;
+    const auto             insert_if_updated = [&updated_indexes](const std::optional<std::uint8_t>& updated_index)
     {
         if (updated_index)
         {
@@ -103,6 +101,10 @@ boost::asio::awaitable<void>
         }
     };
 
+    SDL_Event                             event;
+    boost::asio::steady_timer             timer(co_await boost::asio::this_coro::executor);
+    std::chrono::steady_clock::time_point last_sensor_check_ts{std::chrono::steady_clock::now()};
+    GamepadManager                        manager{controller_name_filter, gamepad_data};
     while (true)
     {
         while (SDL_PollEvent(&event) != 0)
@@ -161,6 +163,15 @@ boost::asio::awaitable<void>
                     BOOST_LOG_TRIVIAL(trace) << "Unhandled event type: " << event.type;
                     break;
             }
+        }
+
+        if (sensor_auto_toggle && (std::chrono::steady_clock::now() - last_sensor_check_ts) > 10ms)
+        {
+            const bool enable{get_number_of_active_clients() > 0};
+
+            BOOST_LOG_TRIVIAL(debug) << "Changing sensor state for open controllers to "
+                                     << (enable ? "ENABLED" : "DISABLED");
+            manager.tryChangeSensorStateForAll(enable);
         }
 
         if (!updated_indexes.empty())

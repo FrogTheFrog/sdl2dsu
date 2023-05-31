@@ -24,6 +24,7 @@ public:
     std::optional<std::uint8_t> tryOpenGamepad(std::uint32_t id);
     std::optional<std::uint8_t> closeGamepad(std::uint32_t id);
     void                        tryChangeSensorState(std::uint32_t id, const std::optional<bool>& enable);
+    void                        tryChangeSensorStateForAll(const std::optional<bool>& enable);
 
     template<class UpdateFunction>
     std::optional<std::uint8_t> tryUpdateData(std::uint32_t id, UpdateFunction update_function);
