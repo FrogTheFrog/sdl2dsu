@@ -41,7 +41,7 @@ bool parseProgramArgs(int argc, const char* const* const argv, std::uint16_t& po
             ("port", po::value<std::uint16_t>(&port)->required(), "port to use for DSU server")                       //
             ("filter", po::value<std::string>(&filter)->default_value(".*"),                                          //
              "regular expression (case-insensitive) to filter the controller names that we want to observe")          //
-            ("noautotoggle", po::value<bool>(&no_auto_toggle)->implicit_value(false),                                 //
+            ("noautotoggle", po::value<bool>(&no_auto_toggle)->implicit_value(true),                                  //
              "disable the lazy automatic sensor toggle when there are no clients or some clients have connected")     //
             ("mappingfile", po::value<std::string>(&mapping_file),                                                    //
              "path to the optional mapping file to be used. Will try to load gamecontrollerdb.txt by default if it "  //

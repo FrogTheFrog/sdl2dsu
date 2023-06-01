@@ -40,12 +40,12 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-std::optional<SdlCleanupGuard> initializeSdl(std::string mapping_file)
+SdlCleanupGuard initializeSdl(std::string mapping_file)
 {
     if (SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1") < 0
         || SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR) < 0)
     {
-        return std::nullopt;
+        throw std::runtime_error(std::string{"SDL could not be initialized! SDL Error: "} + SDL_GetError());
     }
 
     if (mapping_file.empty())
@@ -65,13 +65,13 @@ std::optional<SdlCleanupGuard> initializeSdl(std::string mapping_file)
 
         if (SDL_AddGamepadMappingsFromFile(mapping_file.c_str()) < 0)
         {
-            return std::nullopt;
+            throw std::runtime_error(std::string{"SDL could not parse mapping file! SDL Error: "} + SDL_GetError());
         }
 
-        BOOST_LOG_TRIVIAL(trace) << "Loaded mappings from: " << mapping_file;
+        BOOST_LOG_TRIVIAL(info) << "Loaded mappings from: " << mapping_file;
     }
 
-    return std::make_optional<SdlCleanupGuard>();
+    return SdlCleanupGuard();
 }
 }  // namespace
 
@@ -86,12 +86,6 @@ boost::asio::awaitable<void>
     BOOST_ASSERT(notify_clients);
     BOOST_ASSERT(get_number_of_active_clients);
 
-    const auto sdl_cleanup_guard{initializeSdl(mapping_file)};
-    if (!sdl_cleanup_guard)
-    {
-        throw std::runtime_error(std::string{"SDL could not be initialized! SDL Error: "} + SDL_GetError());
-    }
-
     std::set<std::uint8_t> updated_indexes;
     const auto             insert_if_updated = [&updated_indexes](const std::optional<std::uint8_t>& updated_index)
     {
@@ -100,6 +94,8 @@ boost::asio::awaitable<void>
             updated_indexes.insert(*updated_index);
         }
     };
+
+    const auto sdl_cleanup_guard{initializeSdl(mapping_file)};
 
     SDL_Event                             event;
     boost::asio::steady_timer             timer(co_await boost::asio::this_coro::executor);
