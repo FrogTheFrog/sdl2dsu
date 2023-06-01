@@ -2,5 +2,5 @@
 Type=Application
 Name=sdl2dsu
 Exec=sdl2dsu
-Icon=sdl2dsu.ico
+Icon=sdl2dsu
 Categories=Utility

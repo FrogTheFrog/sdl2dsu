@@ -65,8 +65,11 @@ if (UNIX)
         DESTINATION share/applications/
     )
 
-    install(
-        FILES ../resources/${PROJECT_NAME}.ico
-        DESTINATION share/icons/hicolor/256x256/apps
-    )
+    foreach(size 16;32;64;128;256)
+        install(
+            FILES ../resources/${PROJECT_NAME}-${size}.png
+            DESTINATION share/icons/hicolor/${size}x${size}/apps/
+            RENAME ${PROJECT_NAME}.png
+        )
+    endforeach()    
 endif()
