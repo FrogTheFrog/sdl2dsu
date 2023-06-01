@@ -1,5 +1,5 @@
 name: Build
-on: [pull_request,push]
+on: [pull_request,workflow_call]
 jobs:
   Checks:
     uses: ./.github/workflows/checks.yaml
