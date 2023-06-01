@@ -27,7 +27,7 @@ add_subdirectory(external/sdl)
 #----------------------------------------------------------------------------------------------------------------------
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.80.0 COMPONENTS log log_setup program_options REQUIRED)
+find_package(Boost 1.74.0 COMPONENTS log log_setup program_options REQUIRED)
 
 #----------------------------------------------------------------------------------------------------------------------
 # Compile settings
