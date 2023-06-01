@@ -19,14 +19,17 @@ jobs:
         with:
           submodules: recursive
 
-      - name: CMake configure
-        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -B build -G Ninja
+      - name: Make build dir
+        run: mkdir build && cd build
 
-      - name: CMake build
-        run: cmake --build build
+      - name: Configure
+        run: cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
+
+      - name: Build
+        run: ninja
 
       - name: Install
-        run: DESTDIR=AppDir cd build && ninja install
+        run: DESTDIR=AppDir ninja install
 
       - name: Get linuxdeploy's AppImage
         run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
