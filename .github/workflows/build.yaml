@@ -20,10 +20,10 @@ jobs:
           submodules: recursive
 
       - name: Make build dir
-        run: ls && mkdir build && cd build
+        run: pwd && ls && mkdir build && cd build && pwd && ls
 
       - name: Configure
-        run: cmake -S .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
+        run: pwd && ls && cmake -S .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
 
       - name: Build
         run: ninja
