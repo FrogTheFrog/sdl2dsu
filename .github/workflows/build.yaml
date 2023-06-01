@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Checks]
     steps:
-      - name: Install Ninja
-        run: sudo apt-get install ninja-build
+      - name: Install packages for building
+        run: sudo apt-get install ninja-build libboost-all-dev
 
-      - name: Install Boost
-        run: sudo apt-get install libboost-all-dev
+      - name: Install additional packages for AppImage building
+        run: sudo apt-get install libfuse2
 
       - name: Checkout
         uses: actions/checkout@v3
