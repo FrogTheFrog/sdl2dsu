@@ -11,9 +11,7 @@ project(sdl2dsu
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(ENABLE_CLANG_TIDY OFF CACHE BOOL "Enable clang-tidy build (slow)")
 
 #----------------------------------------------------------------------------------------------------------------------
 # Setup SDL
@@ -30,18 +28,6 @@ add_subdirectory(external/sdl)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.80.0 COMPONENTS log log_setup program_options REQUIRED)
-
-#----------------------------------------------------------------------------------------------------------------------
-# CLang-Tidy
-#----------------------------------------------------------------------------------------------------------------------
-
-if(ENABLE_CLANG_TIDY)
-    if(NOT MSVC)
-        message(STATUS "Clang-tidy build is enabled!")
-        set(CMAKE_CXX_CLANG_TIDY clang-tidy)
-        file(WRITE "${CMAKE_BINARY_DIR}/.clang-tidy" "Checks: '-*,llvm-twine-local'")
-    endif()
-endif()
 
 #----------------------------------------------------------------------------------------------------------------------
 # Compile settings

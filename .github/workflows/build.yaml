@@ -1,0 +1,33 @@
+name: Build
+on: [pull_request,push]
+jobs:
+  Checks:
+    uses: ./.github/workflows/checks.yaml
+
+  LinuxAppImage:
+    runs-on: ubuntu-latest
+    needs: [Checks]
+    steps:
+      - name: Install Ninja
+        run: sudo apt-get install ninja-build
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: CMake configure
+        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -B build -G Ninja
+
+      - name: CMake build
+        run: cmake --build build
+
+      - name: Install
+        run: DESTDIR=AppDir cd build && ninja install
+
+      - name: Get linuxdeploy's AppImage
+        run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+
+      - name: Package AppImage
+        run: chmod +x ./linuxdeploy-x86_64.AppImage && ./linuxdeploy-x86_64.AppImage --appdir ./AppDir
+        

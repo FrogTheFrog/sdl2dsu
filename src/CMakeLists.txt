@@ -1,7 +1,3 @@
-
-# find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
-# qt_standard_project_setup()
-
 #----------------------------------------------------------------------------------------------------------------------
 # Header files
 #----------------------------------------------------------------------------------------------------------------------
@@ -54,5 +50,23 @@ set(SOURCES
 add_executable(${PROJECT_NAME} main.cpp ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static ${Boost_LIBRARIES})
 
-# Workaround for SteamDeck
-target_compile_definitions(${PROJECT_NAME} PRIVATE BOOST_ASIO_HAS_CO_AWAIT)
+#----------------------------------------------------------------------------------------------------------------------
+# Install config
+#----------------------------------------------------------------------------------------------------------------------
+
+if (UNIX)
+    install(
+        TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+    )
+
+    install(
+        FILES ../resources/${PROJECT_NAME}.desktop
+        DESTINATION share/applications/
+    )
+
+    install(
+        FILES ../resources/${PROJECT_NAME}.png
+        DESTINATION share/icons/hicolor/128x128/apps
+    )
+endif()
