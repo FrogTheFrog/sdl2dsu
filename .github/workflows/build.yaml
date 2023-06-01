@@ -39,7 +39,7 @@ jobs:
         run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x ./linuxdeploy-x86_64.AppImage
 
       - name: Prep AppImage name if needed
-        if: github.event_name == 'workflow_call'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2).AppImage" >> $GITHUB_ENV
 
       - name: Package AppImage
