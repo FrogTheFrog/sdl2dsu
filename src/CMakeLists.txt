@@ -66,7 +66,7 @@ if (UNIX)
     )
 
     install(
-        FILES ../resources/${PROJECT_NAME}.png
-        DESTINATION share/icons/hicolor/128x128/apps
+        FILES ../resources/${PROJECT_NAME}.ico
+        DESTINATION share/icons/hicolor/256x256/apps
     )
 endif()
