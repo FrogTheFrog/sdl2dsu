@@ -40,13 +40,13 @@ jobs:
 
       - name: Package AppImage
         working-directory: ./build
-        run: chmod +x ./linuxdeploy-x86_64.AppImage && ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage && pwd && ls
+        run: chmod +x ./linuxdeploy-x86_64.AppImage && ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sdl2sdu
-          path: ./build/sdl2sdu*AppImage
+          name: sdl2dsu
+          path: ./build/sdl2dsu*AppImage
           retention-days: 1
           if-no-files-found: error
         
