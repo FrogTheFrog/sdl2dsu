@@ -40,7 +40,7 @@ jobs:
 
       - name: Prep AppImage name if needed
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2).AppImage" >> $GITHUB_ENV
+        run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64.AppImage" >> $GITHUB_ENV
 
       - name: Package AppImage
         working-directory: ./build
