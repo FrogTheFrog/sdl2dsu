@@ -41,6 +41,8 @@ foreach(opt ${MANDATORY_OPTS})
     if(NOT ${${sdl_opt}})
         message(FATAL_ERROR "${sdl_opt} is not ON!")
     endif()
+
+    message("${sdl_opt} is ${${sdl_opt}}!")
 endforeach()
 
 #----------------------------------------------------------------------------------------------------------------------
