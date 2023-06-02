@@ -68,7 +68,7 @@ std::optional<PadDataRequest> deserialisePadData(std::uint32_t client_id, std::v
     {
         if (mac_index <= 3)
         {
-            requested_indexes.insert(req_index);
+            requested_indexes.insert(mac_index);
         }
     }
 
