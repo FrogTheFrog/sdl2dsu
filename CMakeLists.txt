@@ -22,20 +22,6 @@ set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
 add_subdirectory(external/sdl)
 
-if(UNIX)
-    set(MANDATORY_OPTS
-        DBUS
-        HIDAPI
-        HIDAPI_JOYSTICK
-        IBUS
-        LIBUDEV
-        VIRTUAL_JOYSTICK
-        X11_XINPUT
-    )
-else()
-    set(MANDATORY_OPTS)
-endif()
-
 #----------------------------------------------------------------------------------------------------------------------
 # Setup Boost
 #----------------------------------------------------------------------------------------------------------------------
