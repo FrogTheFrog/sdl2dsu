@@ -12,7 +12,7 @@ jobs:
         run: sudo apt-get install ninja-build libboost-all-dev
 
       - name: Install additional packages for SDL
-        run: sudo apt install libx11-dev
+        run: sudo apt install ibus dbus
 
       - name: Install additional packages for AppImage building
         run: sudo apt-get install libfuse2
