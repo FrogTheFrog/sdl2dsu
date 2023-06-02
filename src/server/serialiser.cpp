@@ -63,12 +63,12 @@ void serialiseGamepadHeader(const std::optional<shared::GamepadData>& gamepad_da
 
     // This is a custom MAC address implementation, since SDL does not provide any. MAC is always mapped to the pad
     // index
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
+    writeUInt8(data, index, 0x00);
     writeUInt8(data, index, pad_index);
-    writeUInt8(data, index, 0x00);
-    writeUInt8(data, index, 0x00);
-    writeUInt8(data, index, 0x00);
-    writeUInt8(data, index, 0x00);
-    writeUInt8(data, index, 0x00);
 
     if (gamepad_data)
     {
