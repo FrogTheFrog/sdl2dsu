@@ -50,7 +50,7 @@ void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endp
     }
 
     const auto now{std::chrono::steady_clock::now()};
-    const auto set_client_data_timestamp = [&now](std::optional<ClientData>& client_data)
+    const auto set_client_data_timestamp = [&now, &endpoint, client_id](std::optional<ClientData>& client_data)
     {
         if (client_data)
         {
@@ -67,11 +67,15 @@ void ActiveClients::updateRequestTime(const boost::asio::ip::udp::endpoint& endp
         for (const auto index : requested_indexes)
         {
             BOOST_ASSERT(index < 4);
+
+            BOOST_LOG_TRIVIAL(debug) << "Client " << client_id << " (" << endpoint << ") updated timestamp for pad "
+                                     << static_cast<int>(index);
             set_client_data_timestamp(pad_data_it->second[index]);
         }
     }
     else
     {
+        BOOST_LOG_TRIVIAL(debug) << "Client " << client_id << " (" << endpoint << ") updated timestamp for all pads.";
         for (auto& client_data : pad_data_it->second)
         {
             set_client_data_timestamp(client_data);
@@ -95,13 +99,16 @@ void ActiveClients::performLazyCleanup() const
     for (auto it = std::begin(m_clients); it != std::end(m_clients);)
     {
         auto& pad_data{it->second};
-        for (auto& client_data : pad_data)
+        for (std::size_t i = 0; i < pad_data.size(); ++i)
         {
+            auto& client_data{pad_data[i]};
             if (client_data)
             {
                 const bool has_timed_out{std::chrono::steady_clock::now() - client_data->m_last_request_time > 5s};
                 if (has_timed_out)
                 {
+                    BOOST_LOG_TRIVIAL(debug) << "Client " << it->first.m_client_id << " (" << it->first.m_endpoint
+                                             << ") has timed out for pad " << static_cast<int>(i);
                     client_data = std::nullopt;
                 }
             }
@@ -118,6 +125,9 @@ void ActiveClients::performLazyCleanup() const
         }
         else
         {
+            BOOST_LOG_TRIVIAL(debug) << "Client " << it->first.m_client_id << " (" << it->first.m_endpoint
+                                     << ") is no longer connected ";
+
             // Client no longer has any active requests
             it = m_clients.erase(it);
         }

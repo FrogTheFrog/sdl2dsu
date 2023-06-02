@@ -2,6 +2,7 @@
 #include "communication.h"
 
 // system includes
+#include <boost/algorithm/string/join.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/log/trivial.hpp>
 #include <random>
@@ -14,6 +15,22 @@
 
 namespace server
 {
+namespace
+{
+std::string indexListToString(const std::set<std::uint8_t>& list)
+{
+    std::vector<std::string> output;
+    for (const int item : list)
+    {
+        output.push_back(std::to_string(item));
+    }
+
+    return boost::algorithm::join(output, ", ");
+}
+}  // namespace
+
+//--------------------------------------------------------------------------------------------------
+
 std::uint32_t generateServerId()
 {
     std::random_device                           seed;
@@ -70,6 +87,7 @@ boost::asio::awaitable<void> distributePadData(std::uint32_t                    
                                                boost::asio::ip::udp::socket& socket)
 {
     BOOST_ASSERT(!updated_indexes.empty());
+    BOOST_LOG_TRIVIAL(debug) << "Updates received for " << indexListToString(updated_indexes) << " pads.";
 
     std::map<boost::asio::ip::udp::endpoint, std::vector<std::vector<std::uint8_t>>> data_to_send;
     const auto& mapped_endpoints{clients.getRelevantEndpoints(updated_indexes)};
@@ -82,6 +100,9 @@ boost::asio::awaitable<void> distributePadData(std::uint32_t                    
 
         for (const auto& relevant_endpoint : relevant_endpoints)
         {
+            BOOST_LOG_TRIVIAL(debug) << "Serializing response for " << relevant_endpoint.m_client_endpoint.m_endpoint
+                                     << ", for pads " << static_cast<int>(index);
+
             auto response{serialise(PadDataResponse{index, relevant_endpoint.m_client_endpoint.m_client_id,
                                                     relevant_endpoint.m_packet_counter, gamepad_data[index]},
                                     server_id)};
