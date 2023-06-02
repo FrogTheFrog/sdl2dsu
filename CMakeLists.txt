@@ -36,15 +36,6 @@ else()
     set(MANDATORY_OPTS)
 endif()
 
-foreach(opt ${MANDATORY_OPTS})
-    set(sdl_opt SDL_${opt})
-    if(NOT ${${sdl_opt}})
-        message(FATAL_ERROR "${sdl_opt} is not ON!")
-    endif()
-
-    message("${sdl_opt} is ${${sdl_opt}}!")
-endforeach()
-
 #----------------------------------------------------------------------------------------------------------------------
 # Setup Boost
 #----------------------------------------------------------------------------------------------------------------------
