@@ -1,0 +1,19 @@
+# Copy this to `/etc/systemd/system/` or some user service location (you can't enable this service).
+# In this example, the service will start monitoring dualsense gamepads, but only after 10s of delay.
+#
+# The delay is used in this case to deal with a specific quirk on SteamDeck. SteamDeck is not happy if someone starts
+# using the gamepad before it is done doing some adaptations to it.
+#
+# Note: the `WantedBy=multi-user.target` part is gone as the UDEV is reponsible for starting the service.
+#       `StopWhenUnneeded` makes sure to stop the service once no UDEV rules want it anymore.
+
+[Unit]
+Description=sdl2dsu
+After=multi-user.target
+Wants=multi-user.target
+StopWhenUnneeded=true
+
+[Service]
+Type=simple
+ExecStart=/home/deck/Desktop/sdl2dsu.AppImage --port 26760 --delay 10 --filter dualsense
+

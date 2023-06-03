@@ -1,0 +1,4 @@
+# Copy this to `/etc/udev/rules.d/` or some user rules' location.
+# In this example, start the `sdl2dsu.service` only when DualSense gamepad connects.
+
+SUBSYSTEMS=="input", ATTRS{id/vendor}=="054c", ATTRS{id/product}=="0ce6", TAG+="systemd", ENV{SYSTEMD_WANTS}+="sdl2dsu.service"

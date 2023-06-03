@@ -18,6 +18,4 @@ Run the app with `sdl2dsu --help` for more info.
 
 # Installing as a service
 
-1. Take a look at `scripts/sdl2dsu.service` and modify the `ExecStart` to your needs.
-2. Copy it to one of the systemd directories. For example `sudo cp scripts/sdl2dsu.service /etc/systemd/system/sdl2dsu.service`.
-3. Refresh the daemon and enable the service - `sudo systemctl daemon-reload && sudo systemctl enable sdl2dsu --now`.
+Take a look in the `examples` directory on how the service should look like.

@@ -1,0 +1,14 @@
+# Copy this to `/etc/systemd/system/` or some user service location and enable the service.
+# In this example, the service will start monitoring dualsense gamepads.
+
+[Unit]
+Description=sdl2dsu
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/deck/Desktop/sdl2dsu.AppImage --port 26760 --filter dualsense
+
+[Install]
+WantedBy=multi-user.target
