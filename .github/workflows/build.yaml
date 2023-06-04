@@ -44,6 +44,45 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  LinuxStatic:
+    runs-on: ubuntu-latest
+    needs: [Checks]
+    steps:
+      - name: Install packages for building
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential git \
+              pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+              libaudio-dev libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
+              libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
+              libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+              libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
+              libpipewire-0.3-dev libdecor-0-dev ninja-build
+
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.4.1
+        id: install-boost
+        with:
+            boost_version: 1.81.0
+            platform_version: 22.04
+            toolset: gcc
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Make build dir
+        run: mkdir build
+
+      - name: Configure
+        working-directory: ./build
+        run: cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
+
+      - name: Build
+        working-directory: ./build
+        run: ninja
+
   Linux:
     runs-on: ubuntu-latest
     needs: [Checks]
