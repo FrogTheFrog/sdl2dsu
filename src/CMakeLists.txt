@@ -54,7 +54,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static ${Boost_LIBRARIE
 # Install config
 #----------------------------------------------------------------------------------------------------------------------
 
-if (UNIX)
+if(WIN32)
+    install(
+        TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+    )
+elseif (UNIX)
     install(
         TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
@@ -72,4 +77,6 @@ if (UNIX)
             RENAME ${PROJECT_NAME}.png
         )
     endforeach()    
+else()
+    message(FATAL_ERROR "OS is not supported!")
 endif()
