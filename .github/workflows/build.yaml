@@ -16,16 +16,19 @@ jobs:
         id: install-boost
         with:
             boost_version: 1.81.0
-            platform_version: 2019
+            platform_version: 2022
             toolset: msvc
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      
-      - name: CMake configure
-        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -B build -G Ninja
+
+      - name: Configure CMake
+        run: |
+            cmake -DCMAKE_BUILD_TYPE:STRING=Release -B build -G Ninja\
+            -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include\
+            -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib
         env:
             BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
