@@ -32,20 +32,8 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(SDL_AUDIO OFF)
 set(SDL_VIDEO OFF)
 set(SDL_RENDER OFF)
-
-
 set(SDL_STATIC ON)
 set(SDL_SHARED OFF)
-# set(SDL_ALSA_SHARED OFF)
-# set(SDL_JACK_SHARED OFF)
-# set(SDL_PIPEWIRE_SHARED OFF)
-# set(SDL_PULSEAUDIO_SHARED OFF)
-# set(SDL_SNDIO_SHARED OFF)
-# set(SDL_X11_SHARED OFF)
-# set(SDL_WAYLAND_SHARED OFF)
-# set(SDL_WAYLAND_LIBDECOR OFF)
-# set(SDL_WAYLAND_LIBDECOR_SHARED OFF)
-# set(SDL_KMSDRM_SHARED OFF)
 add_subdirectory(external/sdl)
 
 #----------------------------------------------------------------------------------------------------------------------

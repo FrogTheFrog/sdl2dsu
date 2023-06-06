@@ -76,8 +76,16 @@ jobs:
             -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }} \
             -B build -G Ninja
 
-      - name: CMake build
+      - name: Build
         run: cmake --build build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ./build/sdl2dsu
+          retention-days: 1
+          if-no-files-found: error
 
   # Linux:
   #   runs-on: ubuntu-latest
