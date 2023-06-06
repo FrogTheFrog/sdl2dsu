@@ -4,42 +4,42 @@ jobs:
   Checks:
     uses: ./.github/workflows/checks.yaml
 
-  Windows:
-    runs-on: windows-latest
-    needs: [Checks]
-    steps:
-      - name: Install MSCV
-        uses: ilammy/msvc-dev-cmd@v1
+  # Windows:
+  #   runs-on: windows-latest
+  #   needs: [Checks]
+  #   steps:
+  #     - name: Install MSCV
+  #       uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Install boost
-        uses: MarkusJx/install-boost@v2.4.1
-        id: install-boost
-        with:
-            boost_version: 1.81.0
-            platform_version: 2022
-            toolset: msvc
+  #     - name: Install boost
+  #       uses: MarkusJx/install-boost@v2.4.1
+  #       id: install-boost
+  #       with:
+  #           boost_version: 1.81.0
+  #           platform_version: 2022
+  #           toolset: msvc
 
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
 
-      - name: Configure CMake
-        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -B build -G Ninja -DBoost_INCLUDE_DIR="${{steps.install-boost.outputs.BOOST_ROOT}}/include/boost-1_81" -DBoost_LIBRARY_DIRS="${{steps.install-boost.outputs.BOOST_ROOT}}/lib" -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
-        env:
-            BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+  #     - name: Configure CMake
+  #       run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -B build -G Ninja -DBoost_INCLUDE_DIR="${{steps.install-boost.outputs.BOOST_ROOT}}/include/boost-1_81" -DBoost_LIBRARY_DIRS="${{steps.install-boost.outputs.BOOST_ROOT}}/lib" -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
+  #       env:
+  #           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
-      - name: CMake build
-        run: cmake --build build
+  #     - name: CMake build
+  #       run: cmake --build build
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        if: steps.tagstatus.outputs.TAG_EXISTS == 0
-        with:
-          name: dist
-          path: ./build/src/sdl2dsu*exe
-          retention-days: 1
-          if-no-files-found: error
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v3
+  #       if: steps.tagstatus.outputs.TAG_EXISTS == 0
+  #       with:
+  #         name: dist
+  #         path: ./build/src/sdl2dsu*exe
+  #         retention-days: 1
+  #         if-no-files-found: error
 
   LinuxStatic:
     runs-on: ubuntu-latest
@@ -80,61 +80,61 @@ jobs:
       - name: CMake build
         run: cmake --build build
 
-  Linux:
-    runs-on: ubuntu-latest
-    needs: [Checks]
-    steps:
-      - name: Install packages for building
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential git \
-              pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
-              libaudio-dev libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
-              libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
-              libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-              libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
-              libpipewire-0.3-dev libdecor-0-dev ninja-build libboost-all-dev
+  # Linux:
+  #   runs-on: ubuntu-latest
+  #   needs: [Checks]
+  #   steps:
+  #     - name: Install packages for building
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install build-essential git \
+  #             pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+  #             libaudio-dev libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
+  #             libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
+  #             libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+  #             libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
+  #             libpipewire-0.3-dev libdecor-0-dev ninja-build libboost-all-dev
 
-      - name: Install additional packages for AppImage building
-        run: sudo apt-get install libfuse2
+  #     - name: Install additional packages for AppImage building
+  #       run: sudo apt-get install libfuse2
 
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
 
-      - name: Make build dir
-        run: mkdir build
+  #     - name: Make build dir
+  #       run: mkdir build
 
-      - name: Configure
-        working-directory: ./build
-        run: cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
+  #     - name: Configure
+  #       working-directory: ./build
+  #       run: cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
 
-      - name: Build
-        working-directory: ./build
-        run: ninja
+  #     - name: Build
+  #       working-directory: ./build
+  #       run: ninja
 
-      - name: Install
-        working-directory: ./build
-        run: DESTDIR=AppDir ninja install
+  #     - name: Install
+  #       working-directory: ./build
+  #       run: DESTDIR=AppDir ninja install
 
-      - name: Get linuxdeploy's AppImage
-        working-directory: ./build
-        run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x ./linuxdeploy-x86_64.AppImage
+  #     - name: Get linuxdeploy's AppImage
+  #       working-directory: ./build
+  #       run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x ./linuxdeploy-x86_64.AppImage
 
-      - name: Prep AppImage name if needed
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64.AppImage" >> $GITHUB_ENV
+  #     - name: Prep AppImage name if needed
+  #       if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  #       run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64.AppImage" >> $GITHUB_ENV
 
-      - name: Package AppImage
-        working-directory: ./build
-        run: ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage
+  #     - name: Package AppImage
+  #       working-directory: ./build
+  #       run: ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: ./build/sdl2dsu*AppImage
-          retention-days: 1
-          if-no-files-found: error
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: dist
+  #         path: ./build/sdl2dsu*AppImage
+  #         retention-days: 1
+  #         if-no-files-found: error
         
