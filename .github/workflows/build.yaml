@@ -56,6 +56,11 @@ jobs:
               libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
               libpipewire-0.3-dev libdecor-0-dev ninja-build
 
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - name: Install boost
         uses: MarkusJx/install-boost@v2.4.1
         id: install-boost
@@ -63,11 +68,6 @@ jobs:
             boost_version: 1.81.0
             platform_version: 22.04
             toolset: gcc
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Test
         run: ls "${{github.workspace}}"
