@@ -70,9 +70,6 @@ jobs:
             toolset: gcc
             boost_install_dir: "${{github.workspace}}/external"
 
-      - name: Test
-        run: ls "${{github.workspace}}"
-
       - name: Configure CMake
         run: |
           cmake -DCMAKE_BUILD_TYPE:STRING=Release \

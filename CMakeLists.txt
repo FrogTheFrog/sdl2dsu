@@ -24,6 +24,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Setup SDL
 #----------------------------------------------------------------------------------------------------------------------
 
+# See https://github.com/bincrafters/community/issues/696
+add_compile_definitions(SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS)
+
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
