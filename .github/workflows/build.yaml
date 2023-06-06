@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: ./build/sdl2dsu
+          path: ./build/src/sdl2dsu
           retention-days: 1
           if-no-files-found: error
 
