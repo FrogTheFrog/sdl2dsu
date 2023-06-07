@@ -68,6 +68,7 @@ jobs:
             boost_version: 1.81.0
             platform_version: 22.04
             toolset: gcc
+            link: static
             boost_install_dir: "${{github.workspace}}/external"
 
       - name: Configure CMake
