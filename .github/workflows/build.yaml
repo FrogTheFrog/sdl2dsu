@@ -27,10 +27,7 @@ jobs:
             boost_install_dir: "${{github.workspace}}/external"
 
       - name: Configure
-        run: |
-          cmake -DCMAKE_BUILD_TYPE:STRING=Release \
-            -DBOOST_ROOT="${{ steps.install-boost.outputs.BOOST_ROOT }}" \
-            -B build -G Ninja
+        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}} -B build -G Ninja
 
       - name: CMake build
         run: cmake --build build
@@ -74,10 +71,7 @@ jobs:
             boost_install_dir: "${{github.workspace}}/external"
 
       - name: Configure
-        run: |
-          cmake -DCMAKE_BUILD_TYPE:STRING=Release
-            -DBOOST_ROOT="${{ steps.install-boost.outputs.BOOST_ROOT }}" \
-            -B build -G Ninja
+        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}} -B build -G Ninja
 
       - name: Build
         run: cmake --build build
