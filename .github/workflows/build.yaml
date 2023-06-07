@@ -1,45 +1,47 @@
 name: Build
-on: [pull_request,push]
+on: [pull_request,workflow_call]
 jobs:
   Checks:
     uses: ./.github/workflows/checks.yaml
 
-  # Windows:
-  #   runs-on: windows-latest
-  #   needs: [Checks]
-  #   steps:
-  #     - name: Install MSCV
-  #       uses: ilammy/msvc-dev-cmd@v1
+  Windows:
+    runs-on: windows-latest
+    needs: [Checks]
+    steps:
+      - name: Install MSCV
+        uses: ilammy/msvc-dev-cmd@v1
 
-  #     - name: Install boost
-  #       uses: MarkusJx/install-boost@v2.4.1
-  #       id: install-boost
-  #       with:
-  #           boost_version: 1.81.0
-  #           platform_version: 2022
-  #           toolset: msvc
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         submodules: recursive
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.4.1
+        id: install-boost
+        with:
+            boost_version: 1.81.0
+            platform_version: 2022
+            toolset: msvc
+            link: static
+            boost_install_dir: "${{github.workspace}}/external"
 
-  #     - name: Configure CMake
-  #       run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -B build -G Ninja -DBoost_INCLUDE_DIR="${{steps.install-boost.outputs.BOOST_ROOT}}/include/boost-1_81" -DBoost_LIBRARY_DIRS="${{steps.install-boost.outputs.BOOST_ROOT}}/lib" -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
-  #       env:
-  #           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+      - name: Configure
+        run: |
+          cmake -DCMAKE_BUILD_TYPE:STRING=Release \
+            -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }} \
+            -B build -G Ninja
 
-  #     - name: CMake build
-  #       run: cmake --build build
+      - name: CMake build
+        run: cmake --build build
 
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v3
-  #       if: steps.tagstatus.outputs.TAG_EXISTS == 0
-  #       with:
-  #         name: dist
-  #         path: ./build/src/sdl2dsu*exe
-  #         retention-days: 1
-  #         if-no-files-found: error
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ./build/src/sdl2dsu.exe
+          retention-days: 1
+          if-no-files-found: error
 
   LinuxStatic:
     runs-on: ubuntu-latest
@@ -71,7 +73,7 @@ jobs:
             link: static
             boost_install_dir: "${{github.workspace}}/external"
 
-      - name: Configure CMake
+      - name: Configure
         run: |
           cmake -DCMAKE_BUILD_TYPE:STRING=Release \
             -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }} \
@@ -80,7 +82,7 @@ jobs:
       - name: Build
         run: cmake --build build
 
-      - name: Upload artifacts
+      - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: dist
