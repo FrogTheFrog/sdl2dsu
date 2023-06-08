@@ -7,10 +7,10 @@ on:
         type: string
     outputs:
       filename:
-        value: ${{ jobs.my_job.outputs.job_output1 }}
+        value: ${{ jobs.filename.outputs.filename }}
 
 jobs:
-  Filename:
+  filename:
     runs-on: ubuntu-latest
     outputs:
       filename: ${{ steps.version.outputs.name }}

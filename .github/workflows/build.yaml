@@ -7,7 +7,7 @@ jobs:
   Filename:
     uses: ./.github/workflows/filename.yaml
     with:
-      original_event_name: ${{ github.event_name }}
+      original_event_name: "${{ github.event_name }}"
 
   Windows:
     runs-on: windows-latest
