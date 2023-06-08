@@ -11,7 +11,7 @@ jobs:
 
   Windows:
     runs-on: windows-latest
-    needs: [Formatting]
+    needs: [Formatting, Filename]
     steps:
       - name: Install MSCV
         uses: ilammy/msvc-dev-cmd@v1
@@ -51,7 +51,7 @@ jobs:
 
   Linux:
     runs-on: ubuntu-latest
-    needs: [Formatting]
+    needs: [Formatting, Filename]
     steps:
       - name: Install packages for building
         run: |
