@@ -17,7 +17,7 @@ std::string getGUIDString(std::uint32_t id)
     const auto           guid{SDL_GetGamepadInstanceGUID(id)};
     std::array<char, 33> buffer = {};
 
-    if (SDL_GetJoystickGUIDString(guid, buffer.data(), buffer.size()) < 0)
+    if (SDL_GetJoystickGUIDString(guid, buffer.data(), static_cast<int>(buffer.size())) < 0)
     {
         BOOST_LOG_TRIVIAL(error) << "Failed to get GUID string: " << SDL_GetError();
         return {};
