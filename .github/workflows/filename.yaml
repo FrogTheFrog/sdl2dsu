@@ -13,7 +13,8 @@ jobs:
   filename:
     runs-on: ubuntu-latest
     outputs:
-      filename: ${{ steps.version.outputs.name }}
+      version: ${{ steps.version.outputs.name }}
+      hash: ${{ steps.hash.outputs.name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,8 +26,8 @@ jobs:
 
       - name: Using the commit SHA as a version
         if: inputs.original_event_name != 'pull_request'
-        id: version
+        id: hash
         run: echo "name=sdl2dsu-$(git rev-parse --short \"${{ github.sha }}\")-x86_64" >> $GITHUB_OUTPUT
 
       - name: Print the filename base
-        run: echo "${{ steps.version.outputs.name }}"
+        run: echo "${{ steps.version.outputs.name }}${{ steps.hash.outputs.name }}"
