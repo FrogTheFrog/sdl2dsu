@@ -45,10 +45,10 @@ bool tryModifyState(float& from, float to)
 
 //--------------------------------------------------------------------------------------------------
 
-float timestampToDsuTimestamp(float ts)
+std::uint64_t timestampToDsuTimestamp(std::uint64_t ts)
 {
     // SDL provides TS in nanoseconds, we need microseconds
-    return ts / 1000.f;
+    return ts / 1000;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ float accelToDsuAccel(float value)
 float gyroToDsuGyro(float value)
 {
     // SDL also standardizes the gyro value, but DSU needs deg/s
-    return value * 180.0f / M_PI;
+    return static_cast<float>(value * 180.0f / M_PI);
 }
 }  // namespace
 
