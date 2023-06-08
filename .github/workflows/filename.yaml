@@ -28,7 +28,7 @@ jobs:
       - name: Using the commit SHA as a version
         if: inputs.original_event_name == 'pull_request'
         id: hash
-        run: echo "name=$(git rev-parse --short \"${{ github.sha }}\")" >> $GITHUB_OUTPUT
+        run: echo "name=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
 
       - name: Generate name
         id: filename
