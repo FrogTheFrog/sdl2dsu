@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* || echo "No tags fetched"
@@ -36,8 +34,8 @@ jobs:
         uses: actions/download-artifact@v3
         if: steps.tagstatus.outputs.TAG_EXISTS == 0
         with:
-          name: sdl2dsu
-          path: sdl2dsu
+          name: dist
+          path: dist
 
       - name: Tag release
         uses: rickstaa/action-create-tag@v1
@@ -50,5 +48,5 @@ jobs:
         if: steps.tagstatus.outputs.TAG_EXISTS == 0
         with: 
           tag_name: "v${{ steps.project_version.outputs.VERSION }}"
-          files: sdl2dsu/*
+          files: dist/*
           draft: true
