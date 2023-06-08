@@ -1,8 +1,8 @@
 name: Build
 on: [pull_request,workflow_call]
 jobs:
-  Checks:
-    uses: ./.github/workflows/checks.yaml
+  Formatting:
+    uses: ./.github/workflows/formatting.yaml
 
   Windows:
     runs-on: windows-latest
@@ -29,12 +29,9 @@ jobs:
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}} -B build -G Ninja
 
-      - name: CMake build
+      - name: build
         run: cmake --build build
 
-      - name: Install
-        working-directory: ./build
-        run: DESTDIR=AppDir ninja install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
