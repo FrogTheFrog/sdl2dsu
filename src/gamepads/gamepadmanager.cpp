@@ -20,7 +20,7 @@ std::optional<std::uint8_t> findFreeIndex(const shared::GamepadDataContainer& ga
         return std::nullopt;
     }
 
-    return it - std::begin(gamepad_data);
+    return static_cast<std::uint8_t>(it - std::begin(gamepad_data));
 }
 }  // namespace
 
