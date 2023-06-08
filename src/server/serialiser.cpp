@@ -2,6 +2,7 @@
 #include "serialiser.h"
 
 // system includes
+#include <iterator>
 
 // local includes
 #include "common.h"
@@ -24,7 +25,7 @@ std::vector<std::uint8_t> finalizeResponse(const std::vector<std::uint8_t>& payl
     writeUInt8(data, index, 'U');
     writeUInt8(data, index, 'S');
     writeUInt16LE(data, index, getProtocolVersion());
-    writeUInt16LE(data, index, payload.size() + 4);
+    writeUInt16LE(data, index, static_cast<std::uint16_t>(payload.size()) + 4);
     writeUInt32LE(data, index, 0x00 /* Reserved for CRC32 */);
     writeUInt32LE(data, index, server_id);
 
