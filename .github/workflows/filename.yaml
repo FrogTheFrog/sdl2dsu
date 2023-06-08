@@ -7,14 +7,15 @@ on:
         type: string
     outputs:
       filename:
-        value: ${{ jobs.filename.outputs.filename }}
+        value: ${{ jobs.Filename.outputs.filename }}
 
 jobs:
-  filename:
+  Filename:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.name }}
       hash: ${{ steps.hash.outputs.name }}
+      filename: ${{ steps.filename.outputs.name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,12 +23,16 @@ jobs:
       - name: Using the CMakeLists version
         if: inputs.original_event_name != 'pull_request'
         id: version
-        run: echo "name=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64" >> $GITHUB_OUTPUT
+        run: echo "name=$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)" >> $GITHUB_OUTPUT
 
       - name: Using the commit SHA as a version
-        if: inputs.original_event_name != 'pull_request'
+        if: inputs.original_event_name == 'pull_request'
         id: hash
-        run: echo "name=sdl2dsu-$(git rev-parse --short \"${{ github.sha }}\")-x86_64" >> $GITHUB_OUTPUT
+        run: echo "name=$(git rev-parse --short \"${{ github.sha }}\")" >> $GITHUB_OUTPUT
+
+      - name: Generate name
+        id: filename
+        run: echo "name=sdl2dsu-${{ steps.version.outputs.name }}${{ steps.hash.outputs.name }}-x86_64" >> $GITHUB_OUTPUT
 
       - name: Print the filename base
-        run: echo "${{ steps.version.outputs.name }}${{ steps.hash.outputs.name }}"
+        run: echo "${{ steps.filename.outputs.name }}"
