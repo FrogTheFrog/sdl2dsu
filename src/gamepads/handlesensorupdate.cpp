@@ -64,7 +64,7 @@ float accelToDsuAccel(float value)
 float gyroToDsuGyro(float value)
 {
     // SDL also standardizes the gyro value, but DSU needs deg/s
-    return value * 180.0f / M_PI;
+    return static_cast<float>(value * 180.0f / M_PI);
 }
 }  // namespace
 
