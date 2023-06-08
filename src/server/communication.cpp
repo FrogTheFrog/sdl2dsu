@@ -62,13 +62,13 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
         {
             responses = {serialise(VersionResponse{}, server_id)};
         }
-        else if (const auto request = std::get_if<ListPortsRequest>(&*result))
+        else if (const auto ports_request = std::get_if<ListPortsRequest>(&*result))
         {
-            responses = serialise(ListPortsResponse{request->m_requested_indexes, gamepad_data}, server_id);
+            responses = serialise(ListPortsResponse{ports_request->m_requested_indexes, gamepad_data}, server_id);
         }
-        else if (const auto request = std::get_if<PadDataRequest>(&*result))
+        else if (const auto data_request = std::get_if<PadDataRequest>(&*result))
         {
-            clients.updateRequestTime(client, request->m_client_id, request->m_requested_indexes);
+            clients.updateRequestTime(client, data_request->m_client_id, data_request->m_requested_indexes);
         }
 
         for (const auto& response : responses)
