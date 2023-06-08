@@ -32,6 +32,10 @@ jobs:
       - name: CMake build
         run: cmake --build build
 
+      - name: Install
+        working-directory: ./build
+        run: DESTDIR=AppDir ninja install
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -40,7 +44,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  LinuxStatic:
+  Linux:
     runs-on: ubuntu-latest
     needs: [Checks]
     steps:
@@ -53,7 +57,7 @@ jobs:
               libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
               libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
               libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
-              libpipewire-0.3-dev libdecor-0-dev ninja-build
+              libpipewire-0.3-dev libdecor-0-dev ninja-build libfuse2
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -71,16 +75,33 @@ jobs:
             boost_install_dir: "${{github.workspace}}/external"
 
       - name: Configure
-        run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}} -B build -G Ninja
+        run: mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}} -G Ninja
 
       - name: Build
-        run: cmake --build build
+        working-directory: ./build
+        run: ninja
 
-      - name: Upload
+      - name: Install
+        working-directory: ./build
+        run: DESTDIR=AppDir ninja install
+
+      - name: Get linuxdeploy's AppImage
+        working-directory: ./build
+        run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x ./linuxdeploy-x86_64.AppImage
+
+      - name: Prep AppImage name if needed
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: echo "OUTPUT=sdl2dsu-$(grep -E "\s+VERSION" CMakeLists.txt | xargs | cut -d' ' -f 2)-x86_64.AppImage" >> $GITHUB_ENV
+
+      - name: Package AppImage
+        working-directory: ./build
+        run: ./linuxdeploy-x86_64.AppImage --appdir ./AppDir --output appimage
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: ./build/src/sdl2dsu
+          path: ./build/sdl2dsu*AppImage
           retention-days: 1
           if-no-files-found: error
 

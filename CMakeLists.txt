@@ -12,15 +12,13 @@ project(sdl2dsu
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(STATIC_BUILD OFF CACHE BOOL "Use static linking")
 
-#if(WIN32)
-    # See https://github.com/bincrafters/community/issues/696
-    # add_compile_definitions(SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS=1)
-
-    # set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    # set(BUILD_SHARED_LIBS OFF)
-    # set(CMAKE_EXE_LINKER_FLAGS "-static")
-#endif()
+if(STATIC_BUILD)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
 #----------------------------------------------------------------------------------------------------------------------
 # Setup SDL
@@ -30,8 +28,8 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(SDL_AUDIO OFF)
 set(SDL_VIDEO OFF)
 set(SDL_RENDER OFF)
-set(SDL_STATIC ON)
 set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
 add_subdirectory(external/sdl)
 
 #----------------------------------------------------------------------------------------------------------------------

@@ -47,19 +47,19 @@ set(SOURCES
 # Target config
 #----------------------------------------------------------------------------------------------------------------------
 
-add_executable(${PROJECT_NAME} main.cpp ${HEADERS} ${SOURCES})
+set(RESOURCES)
+if(WIN32)
+    list(APPEND RESOURCES "../resources/windows.rc")
+endif()
+
+add_executable(${PROJECT_NAME} main.cpp ${HEADERS} ${SOURCES} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static ${Boost_LIBRARIES})
 
 #----------------------------------------------------------------------------------------------------------------------
 # Install config
 #----------------------------------------------------------------------------------------------------------------------
 
-if(WIN32)
-    install(
-        TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-    )
-elseif (UNIX)
+if(UNIX)
     install(
         TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
@@ -77,6 +77,6 @@ elseif (UNIX)
             RENAME ${PROJECT_NAME}.png
         )
     endforeach()    
-else()
+elseif(NOT WIN32)
     message(FATAL_ERROR "OS is not supported!")
 endif()

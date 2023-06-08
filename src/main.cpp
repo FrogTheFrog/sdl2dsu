@@ -45,7 +45,7 @@ bool parseProgramArgs(int argc, const char* const* const argv, int& init_delay, 
             ("help", "print this help message")                                                                       //
             ("delay", po::value<int>(&init_delay)->default_value(0),                                                  //
              "time to wait in seconds before the app starts initialising SDL and opening server port")                //
-            ("port", po::value<std::uint16_t>(&port)->required(), "port to use for DSU server")                       //
+            ("port", po::value<std::uint16_t>(&port)->default_value(26760), "port to use for DSU server")             //
             ("filter", po::value<std::string>(&filter)->default_value(".*"),                                          //
              "regular expression (case-insensitive) to filter the controller names that we want to observe")          //
             ("noautotoggle", po::value<bool>(&no_auto_toggle)->implicit_value(true),                                  //
@@ -133,6 +133,8 @@ bool interuptable_sleep(int init_delay)
         {
             return false;
         }
+
+        BOOST_LOG_TRIVIAL(info) << "Initializing...";
     }
 
     return true;
@@ -159,8 +161,6 @@ int main(int argc, char** argv)
         {
             return EXIT_SUCCESS;
         }
-
-        BOOST_LOG_TRIVIAL(info) << "Initializing...";
 
         // Prepare general coroutine stuff
         constexpr int           no_concurrency{1};

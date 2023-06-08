@@ -44,6 +44,8 @@ std::uint32_t generateServerId()
 boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const shared::GamepadDataContainer& gamepad_data,
                                               ActiveClients& clients, boost::asio::ip::udp::socket& socket)
 {
+    BOOST_LOG_TRIVIAL(info) << "Server listening on " << socket.local_endpoint();
+
     std::array<std::uint8_t, 1024> data;
     for (;;)
     {
