@@ -45,10 +45,10 @@ bool tryModifyState(float& from, float to)
 
 //--------------------------------------------------------------------------------------------------
 
-float timestampToDsuTimestamp(float ts)
+std::uint64_t timestampToDsuTimestamp(std::uint64_t ts)
 {
     // SDL provides TS in nanoseconds, we need microseconds
-    return ts / 1000.f;
+    return ts / 1000;
 }
 
 //--------------------------------------------------------------------------------------------------
