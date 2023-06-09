@@ -23,6 +23,7 @@ public:
 
     std::optional<std::uint8_t> tryOpenGamepad(std::uint32_t id);
     std::optional<std::uint8_t> closeGamepad(std::uint32_t id);
+    shared::GamepadData*        tryGetData(std::uint32_t id) const;
     void                        tryChangeSensorState(std::uint32_t id, const std::optional<bool>& enable);
     void                        tryChangeSensorStateForAll(const std::optional<bool>& enable);
 

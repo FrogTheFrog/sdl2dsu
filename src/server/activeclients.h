@@ -21,8 +21,7 @@ class ActiveClients final
 public:
     explicit ActiveClients() = default;
 
-    std::map<std::uint8_t, std::set<ClientEndpointCounter>>
-                getRelevantEndpoints(std::set<std::uint8_t> updated_indexes);
+    std::set<ClientEndpointCounter> getRelevantEndpoints(const std::uint8_t index);
     void        updateRequestTime(const boost::asio::ip::udp::endpoint& endpoint, std::uint32_t client_id,
                                   std::set<std::uint8_t> requested_indexes);
     std::size_t getNumberOfClients() const;

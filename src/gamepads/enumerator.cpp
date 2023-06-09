@@ -78,66 +78,153 @@ SdlCleanupGuard initializeSdl(std::string mapping_file)
 //--------------------------------------------------------------------------------------------------
 
 boost::asio::awaitable<void>
-    enumerateAndWatch(std::function<boost::asio::awaitable<void>(const std::set<std::uint8_t>&)> notify_clients,
-                      std::function<std::size_t()> get_number_of_active_clients,
+    enumerateAndWatch(std::function<boost::asio::awaitable<void>(const std::uint8_t)> notify_clients,
+                      std::function<std::size_t()>                                    get_number_of_active_clients,
                       const std::regex& controller_name_filter, const std::string& mapping_file,
                       bool sensor_auto_toggle, shared::GamepadDataContainer& gamepad_data)
 {
     BOOST_ASSERT(notify_clients);
     BOOST_ASSERT(get_number_of_active_clients);
 
-    std::set<std::uint8_t> updated_indexes;
-    const auto             insert_if_updated = [&updated_indexes](const std::optional<std::uint8_t>& updated_index)
-    {
-        if (updated_index)
-        {
-            updated_indexes.insert(*updated_index);
-        }
-    };
-
-    const auto sdl_cleanup_guard{initializeSdl(mapping_file)};
-
-    SDL_Event                             event;
+    const auto                            sdl_cleanup_guard{initializeSdl(mapping_file)};
     boost::asio::steady_timer             timer(co_await boost::asio::this_coro::executor);
     std::chrono::steady_clock::time_point last_sensor_check_ts{std::chrono::steady_clock::now()};
     GamepadManager                        manager{controller_name_filter, gamepad_data};
+
+    std::set<std::uint8_t> updated_indexes;
+    shared::GamepadData*   last_device_data{nullptr};
+    std::uint32_t          last_device_id{0};
+    const auto             unload_device_data = [&last_device_data, &last_device_id]()
+    {
+        last_device_data = nullptr;
+        last_device_id   = 0;
+    };
+    const auto load_device_data = [&last_device_data, &last_device_id, &manager](const auto& event) -> bool
+    {
+        const std::uint32_t device_id{event.which};
+        if (device_id != last_device_id || last_device_data == nullptr)
+        {
+            last_device_data = manager.tryGetData(device_id);
+            if (!last_device_data)
+            {
+                BOOST_LOG_TRIVIAL(error) << "gamepad with id " << device_id << " has no data!";
+                return false;
+            }
+        }
+        return true;
+    };
+    const auto data_needs_to_be_sent_now = [&last_device_data, &updated_indexes](const auto& event) -> bool
+    {
+        BOOST_ASSERT(last_device_data);
+        if (last_device_data->m_pad_info.m_update_ts != event.timestamp
+            && updated_indexes.contains(last_device_data->m_pad_info.m_index))
+        {
+            updated_indexes.erase(last_device_data->m_pad_info.m_index);
+            return true;
+        }
+        return false;
+    };
+    const auto try_update_data = [&last_device_data, &updated_indexes](const auto& event, auto&& modifier)
+    {
+        BOOST_ASSERT(last_device_data);
+        const bool result{modifier(event, *last_device_data)};
+        if (result)
+        {
+            last_device_data->m_pad_info.m_update_ts = event.timestamp;
+            updated_indexes.insert(last_device_data->m_pad_info.m_index);
+        }
+        return result;
+    };
+
+    SDL_Event base_event;
     while (true)
     {
-        while (SDL_PollEvent(&event) != 0)
+        while (SDL_PollEvent(&base_event) != 0)
         {
-            switch (event.type)
+            switch (base_event.type)
             {
                 case SDL_EVENT_GAMEPAD_ADDED:
                 {
-                    insert_if_updated(manager.tryOpenGamepad(event.gdevice.which));
+                    const auto new_index{manager.tryOpenGamepad(base_event.gdevice.which)};
+                    if (new_index)
+                    {
+                        updated_indexes.erase(*new_index);
+                        co_await notify_clients(*new_index);
+                    }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_REMOVED:
                 {
-                    insert_if_updated(manager.closeGamepad(event.gdevice.which));
+                    unload_device_data();
+                    const auto pending_index{manager.closeGamepad(base_event.gdevice.which)};
+                    if (pending_index)
+                    {
+                        updated_indexes.erase(*pending_index);
+                        co_await notify_clients(*pending_index);
+                    }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_AXIS_MOTION:
                 {
-                    insert_if_updated(handleAxisUpdate(event.gaxis, manager));
+                    const auto& event{base_event.gaxis};
+                    if (load_device_data(event))
+                    {
+                        if (data_needs_to_be_sent_now(event))
+                        {
+                            co_await notify_clients(last_device_data->m_pad_info.m_index);
+                        }
+
+                        try_update_data(event, handleAxisUpdate);
+                    }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
                 case SDL_EVENT_GAMEPAD_BUTTON_UP:
                 {
-                    insert_if_updated(handleButtonUpdate(event.gbutton, manager));
+                    const auto& event{base_event.gbutton};
+                    if (load_device_data(event))
+                    {
+                        if (data_needs_to_be_sent_now(event))
+                        {
+                            co_await notify_clients(last_device_data->m_pad_info.m_index);
+                        }
+
+                        if (try_update_data(event, handleButtonUpdate))
+                        {
+                            BOOST_ASSERT(last_device_data);
+                            tryToToggleSensor(event, *last_device_data, manager);
+                        }
+                    }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_TOUCHPAD_DOWN:
                 case SDL_EVENT_GAMEPAD_TOUCHPAD_MOTION:
                 case SDL_EVENT_GAMEPAD_TOUCHPAD_UP:
                 {
-                    insert_if_updated(handleTouchpadUpdate(event.gtouchpad, manager));
+                    const auto& event{base_event.gtouchpad};
+                    if (load_device_data(event))
+                    {
+                        if (data_needs_to_be_sent_now(event))
+                        {
+                            co_await notify_clients(last_device_data->m_pad_info.m_index);
+                        }
+
+                        try_update_data(event, handleTouchpadUpdate);
+                    }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_SENSOR_UPDATE:
                 {
-                    insert_if_updated(handleSensorUpdate(event.gsensor, manager));
+                    const auto& event{base_event.gsensor};
+                    if (load_device_data(event))
+                    {
+                        if (data_needs_to_be_sent_now(event))
+                        {
+                            co_await notify_clients(last_device_data->m_pad_info.m_index);
+                        }
+
+                        try_update_data(event, handleSensorUpdate);
+                    }
                     break;
                 }
                 case SDL_EVENT_JOYSTICK_AXIS_MOTION:
@@ -152,11 +239,20 @@ boost::asio::awaitable<void>
                 }
                 case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
                 {
-                    insert_if_updated(handleBatteryUpdate(event.jbattery, manager));
+                    const auto& event{base_event.jbattery};
+                    if (load_device_data(event))
+                    {
+                        if (data_needs_to_be_sent_now(event))
+                        {
+                            co_await notify_clients(last_device_data->m_pad_info.m_index);
+                        }
+
+                        try_update_data(event, handleBatteryUpdate);
+                    }
                     break;
                 }
                 default:
-                    BOOST_LOG_TRIVIAL(trace) << "Unhandled event type: " << event.type;
+                    BOOST_LOG_TRIVIAL(trace) << "Unhandled event type: " << base_event.type;
                     break;
             }
         }
@@ -174,12 +270,17 @@ boost::asio::awaitable<void>
 
         if (!updated_indexes.empty())
         {
-            co_await notify_clients(updated_indexes);
+            for (const auto index : updated_indexes)
+            {
+                co_await notify_clients(index);
+            }
             updated_indexes.clear();
         }
-
-        timer.expires_after(1ms);
-        co_await timer.async_wait(boost::asio::use_awaitable);
+        else
+        {
+            timer.expires_after(1ms);
+            co_await timer.async_wait(boost::asio::use_awaitable);
+        }
     }
 }
 }  // namespace gamepads

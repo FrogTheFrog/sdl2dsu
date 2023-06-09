@@ -23,6 +23,6 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
 
 boost::asio::awaitable<void> distributePadData(std::uint32_t                       server_id,
                                                const shared::GamepadDataContainer& gamepad_data,
-                                               const std::set<std::uint8_t>& updated_indexes, ActiveClients& clients,
+                                               const std::uint8_t index, ActiveClients& clients,
                                                boost::asio::ip::udp::socket& socket);
 }  // namespace server

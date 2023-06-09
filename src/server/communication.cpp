@@ -15,22 +15,6 @@
 
 namespace server
 {
-namespace
-{
-std::string indexListToString(const std::set<std::uint8_t>& list)
-{
-    std::vector<std::string> output;
-    for (const int item : list)
-    {
-        output.push_back(std::to_string(item));
-    }
-
-    return boost::algorithm::join(output, ", ");
-}
-}  // namespace
-
-//--------------------------------------------------------------------------------------------------
-
 std::uint32_t generateServerId()
 {
     std::random_device                           seed;
@@ -85,33 +69,25 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
 
 boost::asio::awaitable<void> distributePadData(std::uint32_t                       server_id,
                                                const shared::GamepadDataContainer& gamepad_data,
-                                               const std::set<std::uint8_t>& updated_indexes, ActiveClients& clients,
+                                               const std::uint8_t index, ActiveClients& clients,
                                                boost::asio::ip::udp::socket& socket)
 {
-    BOOST_ASSERT(!updated_indexes.empty());
-    BOOST_LOG_TRIVIAL(debug) << "Updates received for [" << indexListToString(updated_indexes) << "] pad index(es).";
+    BOOST_ASSERT(index < 4);
+    BOOST_LOG_TRIVIAL(debug) << "Sending updates for pad index: " << static_cast<int>(index);
 
     std::map<boost::asio::ip::udp::endpoint, std::vector<std::vector<std::uint8_t>>> data_to_send;
-    const auto& mapped_endpoints{clients.getRelevantEndpoints(updated_indexes)};
-    for (const auto& item : mapped_endpoints)
+    const auto& relevant_endpoints{clients.getRelevantEndpoints(index)};
+    for (const auto& relevant_endpoint : relevant_endpoints)
     {
-        const auto  index{item.first};
-        const auto& relevant_endpoints{item.second};
+        BOOST_LOG_TRIVIAL(debug) << "Serializing response for " << relevant_endpoint.m_client_endpoint.m_endpoint
+                                 << ", for pad index " << static_cast<int>(index);
 
-        BOOST_ASSERT(index < 4);
+        auto response{serialise(PadDataResponse{index, relevant_endpoint.m_client_endpoint.m_client_id,
+                                                relevant_endpoint.m_packet_counter, gamepad_data[index]},
+                                server_id)};
 
-        for (const auto& relevant_endpoint : relevant_endpoints)
-        {
-            BOOST_LOG_TRIVIAL(debug) << "Serializing response for " << relevant_endpoint.m_client_endpoint.m_endpoint
-                                     << ", for pad index " << static_cast<int>(index);
-
-            auto response{serialise(PadDataResponse{index, relevant_endpoint.m_client_endpoint.m_client_id,
-                                                    relevant_endpoint.m_packet_counter, gamepad_data[index]},
-                                    server_id)};
-
-            BOOST_ASSERT(!response.empty());
-            data_to_send[relevant_endpoint.m_client_endpoint.m_endpoint].push_back(std::move(response));
-        }
+        BOOST_ASSERT(!response.empty());
+        data_to_send[relevant_endpoint.m_client_endpoint.m_endpoint].push_back(std::move(response));
     }
 
     for (const auto& item : data_to_send)

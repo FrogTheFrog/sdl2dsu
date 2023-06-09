@@ -182,8 +182,8 @@ int main(int argc, char** argv)
         boost::asio::co_spawn(
             io_context,
             gamepads::enumerateAndWatch(
-                [&](const auto& updated_indexes)
-                { return server::distributePadData(server_id, gamepad_data, updated_indexes, active_clients, socket); },
+                [&](const std::uint8_t updated_index)
+                { return server::distributePadData(server_id, gamepad_data, updated_index, active_clients, socket); },
                 [&]() { return active_clients.getNumberOfClients(); }, controller_name_filter, mapping_file,
                 sensor_auto_toggle, gamepad_data),
             exceptionHandler);

@@ -10,5 +10,9 @@
 
 namespace gamepads
 {
-std::optional<std::uint8_t> handleButtonUpdate(const SDL_GamepadButtonEvent& event, GamepadManager& manager);
+bool handleButtonUpdate(const SDL_GamepadButtonEvent& event, shared::GamepadData& data);
+
+//--------------------------------------------------------------------------------------------------
+
+void tryToToggleSensor(const SDL_GamepadButtonEvent& event, const shared::GamepadData& data, GamepadManager& manager);
 }  // namespace gamepads
