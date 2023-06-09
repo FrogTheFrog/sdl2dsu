@@ -13,6 +13,14 @@ namespace shared
 {
 namespace details
 {
+struct PadInfo
+{
+    std::uint8_t  m_index;
+    std::uint64_t m_update_ts{0};
+};
+
+//--------------------------------------------------------------------------------------------------
+
 enum class BatteryLevel : std::uint8_t
 {
     Unknown = 0x00,
@@ -128,16 +136,17 @@ struct Sensor
 
 struct GamepadData
 {
+    details::PadInfo      m_pad_info;
     details::BatteryLevel m_battery{details::BatteryLevel::Unknown};
-    details::ABXY         m_abxy;
-    details::Dpad         m_dpad;
-    details::Special      m_special;
-    details::Shoulder     m_shoulder;
-    details::Trigger      m_trigger;
-    details::Stick        m_left_stick;
-    details::Stick        m_right_stick;
-    details::Touchpad     m_touchpad;
-    details::Sensor       m_sensor;
+    details::ABXY         m_abxy{};
+    details::Dpad         m_dpad{};
+    details::Special      m_special{};
+    details::Shoulder     m_shoulder{};
+    details::Trigger      m_trigger{};
+    details::Stick        m_left_stick{};
+    details::Stick        m_right_stick{};
+    details::Touchpad     m_touchpad{};
+    details::Sensor       m_sensor{};
 };
 
 //--------------------------------------------------------------------------------------------------

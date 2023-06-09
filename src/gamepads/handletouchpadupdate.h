@@ -4,11 +4,11 @@
 
 // local includes
 #include "SDL.h"
-#include "gamepadmanager.h"
+#include "shared/gamepaddata.h"
 
 //--------------------------------------------------------------------------------------------------
 
 namespace gamepads
 {
-std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent& event, GamepadManager& manager);
+bool handleTouchpadUpdate(const SDL_GamepadTouchpadEvent& event, shared::GamepadData& data);
 }  // namespace gamepads

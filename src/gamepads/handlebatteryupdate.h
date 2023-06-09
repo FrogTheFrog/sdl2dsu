@@ -4,11 +4,11 @@
 
 // local includes
 #include "SDL.h"
-#include "gamepadmanager.h"
+#include "shared/gamepaddata.h"
 
 //--------------------------------------------------------------------------------------------------
 
 namespace gamepads
 {
-std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event, GamepadManager& manager);
+bool handleBatteryUpdate(const SDL_JoyBatteryEvent& event, shared::GamepadData& data);
 }  // namespace gamepads

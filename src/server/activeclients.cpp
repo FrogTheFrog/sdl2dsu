@@ -14,23 +14,19 @@ using namespace std::chrono_literals;
 
 //--------------------------------------------------------------------------------------------------
 
-std::map<std::uint8_t, std::set<ClientEndpointCounter>>
-    ActiveClients::getRelevantEndpoints(std::set<std::uint8_t> updated_indexes)
+std::set<ClientEndpointCounter> ActiveClients::getRelevantEndpoints(const std::uint8_t index)
 {
     performLazyCleanup();
 
-    std::map<std::uint8_t, std::set<ClientEndpointCounter>> relevant_endpoints;
-    for (const auto updated_index : updated_indexes)
+    std::set<ClientEndpointCounter> relevant_endpoints;
+    BOOST_ASSERT(index < 4);
+    for (auto& client : m_clients)
     {
-        BOOST_ASSERT(updated_index < 4);
-        for (auto& client : m_clients)
+        auto& client_data{client.second[index]};
+        if (client_data != std::nullopt)
         {
-            auto& client_data{client.second[updated_index]};
-            if (client_data != std::nullopt)
-            {
-                // Note: incrementing counter here
-                relevant_endpoints[updated_index].insert({client.first, client_data->m_packet_counter++});
-            }
+            // Note: incrementing counter here
+            relevant_endpoints.insert({client.first, client_data->m_packet_counter++});
         }
     }
     return relevant_endpoints;

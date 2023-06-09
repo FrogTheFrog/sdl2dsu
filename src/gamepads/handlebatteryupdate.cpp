@@ -2,6 +2,7 @@
 #include "handleaxisupdate.h"
 
 // system includes
+#include <boost/log/trivial.hpp>
 
 // local includes
 
@@ -29,37 +30,33 @@ bool tryModifyState(BL& from, BL to)
 
 //--------------------------------------------------------------------------------------------------
 
-std::optional<std::uint8_t> handleBatteryUpdate(const SDL_JoyBatteryEvent& event, GamepadManager& manager)
+bool handleBatteryUpdate(const SDL_JoyBatteryEvent& event, shared::GamepadData& data)
 {
     BOOST_LOG_TRIVIAL(trace) << "battery level value change " << event.level << " received for gamepad " << event.which;
 
-    return manager.tryUpdateData(event.which,
-                                 [&event](shared::GamepadData& data)
-                                 {
-                                     bool updated{false};
-                                     switch (event.level)
-                                     {
-                                         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_EMPTY:
-                                             updated = tryModifyState(data.m_battery, BL::Empty);
-                                             break;
-                                         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_LOW:
-                                             updated = tryModifyState(data.m_battery, BL::Low);
-                                             break;
-                                         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_MEDIUM:
-                                             updated = tryModifyState(data.m_battery, BL::Medium);
-                                             break;
-                                         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_FULL:
-                                             updated = tryModifyState(data.m_battery, BL::Full);
-                                             break;
-                                         case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_WIRED:
-                                             updated = tryModifyState(data.m_battery, BL::Wired);
-                                             break;
+    bool updated{false};
+    switch (event.level)
+    {
+        case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_EMPTY:
+            updated = tryModifyState(data.m_battery, BL::Empty);
+            break;
+        case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_LOW:
+            updated = tryModifyState(data.m_battery, BL::Low);
+            break;
+        case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_MEDIUM:
+            updated = tryModifyState(data.m_battery, BL::Medium);
+            break;
+        case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_FULL:
+            updated = tryModifyState(data.m_battery, BL::Full);
+            break;
+        case SDL_JoystickPowerLevel::SDL_JOYSTICK_POWER_WIRED:
+            updated = tryModifyState(data.m_battery, BL::Wired);
+            break;
 
-                                         default:
-                                             break;
-                                     }
+        default:
+            break;
+    }
 
-                                     return updated;
-                                 });
+    return updated;
 }
 }  // namespace gamepads

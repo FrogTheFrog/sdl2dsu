@@ -66,7 +66,7 @@ std::optional<std::uint8_t> GamepadManager::tryOpenGamepad(std::uint32_t id)
         return std::nullopt;
     }
 
-    m_gamepad_data[*index] = shared::GamepadData{};
+    m_gamepad_data[*index] = shared::GamepadData{.m_pad_info = {*index}};
     return index;
 }
 
@@ -99,6 +99,23 @@ std::optional<std::uint8_t> GamepadManager::closeGamepad(std::uint32_t id)
     }
 
     return index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+shared::GamepadData* GamepadManager::tryGetData(std::uint32_t id) const
+{
+    auto handle_it{m_open_handles.find(id)};
+    if (handle_it == std::end(m_open_handles))
+    {
+        return nullptr;
+    }
+
+    const auto index{handle_it->second.getIndex()};
+    auto&      data{m_gamepad_data[index]};
+    BOOST_ASSERT(data);
+
+    return &*data;
 }
 
 //--------------------------------------------------------------------------------------------------

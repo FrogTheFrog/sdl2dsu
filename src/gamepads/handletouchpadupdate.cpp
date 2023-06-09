@@ -2,6 +2,7 @@
 #include "handleaxisupdate.h"
 
 // system includes
+#include <boost/log/trivial.hpp>
 #include <limits>
 
 // local includes
@@ -41,7 +42,7 @@ bool tryModifyState(bool& from, float to)
 
 //--------------------------------------------------------------------------------------------------
 
-std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent& event, GamepadManager& manager)
+bool handleTouchpadUpdate(const SDL_GamepadTouchpadEvent& event, shared::GamepadData& data)
 {
     BOOST_LOG_TRIVIAL(trace) << "touchpad (" << event.touchpad << ") x:" << event.x << " y:" << event.y
                              << " pr:" << event.pressure << " fr:" << event.finger << " received for gamepad "
@@ -49,26 +50,21 @@ std::optional<std::uint8_t> handleTouchpadUpdate(const SDL_GamepadTouchpadEvent&
 
     if (event.touchpad == 0 && (event.finger == 0 || event.finger == 1))
     {
-        return manager.tryUpdateData(event.which,
-                                     [&event](shared::GamepadData& data)
-                                     {
-                                         shared::details::Touch& touch{event.finger == 0
-                                                                           ? data.m_touchpad.m_first_touch
-                                                                           : data.m_touchpad.m_second_touch};
+        shared::details::Touch& touch{event.finger == 0 ? data.m_touchpad.m_first_touch
+                                                        : data.m_touchpad.m_second_touch};
 
-                                         bool updated{tryModifyState(touch.m_touched, event.pressure)};
-                                         if (updated && touch.m_touched)
-                                         {
-                                             // Increment the touch "id" (counter) once the finger is touching.
-                                             // Overflows are ok.
-                                             touch.m_id++;
-                                         }
-                                         updated = tryModifyState(touch.m_x, event.x) || updated;
-                                         updated = tryModifyState(touch.m_y, event.y) || updated;
-                                         return updated;
-                                     });
+        bool updated{tryModifyState(touch.m_touched, event.pressure)};
+        if (updated && touch.m_touched)
+        {
+            // Increment the touch "id" (counter) once the finger is touching.
+            // Overflows are ok.
+            touch.m_id++;
+        }
+        updated = tryModifyState(touch.m_x, event.x) || updated;
+        updated = tryModifyState(touch.m_y, event.y) || updated;
+        return updated;
     }
 
-    return std::nullopt;
+    return false;
 }
 }  // namespace gamepads
