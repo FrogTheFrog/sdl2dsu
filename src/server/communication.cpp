@@ -3,6 +3,7 @@
 
 // system includes
 #include <boost/algorithm/string/join.hpp>
+#include <boost/asio/experimental/as_tuple.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/log/trivial.hpp>
 #include <random>
@@ -10,6 +11,13 @@
 // local includes
 #include "deserialiser.h"
 #include "serialiser.h"
+
+//--------------------------------------------------------------------------------------------------
+
+namespace
+{
+constexpr auto use_nothrow_awaitable{boost::asio::experimental::as_tuple(boost::asio::use_awaitable)};
+}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -34,8 +42,14 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
     for (;;)
     {
         boost::asio::ip::udp::endpoint client;
-        const std::size_t              data_size{
-            co_await socket.async_receive_from(boost::asio::buffer(data), client, boost::asio::use_awaitable)};
+        const auto [error, data_size] =
+            co_await socket.async_receive_from(boost::asio::buffer(data), client, use_nothrow_awaitable);
+
+        if (error)
+        {
+            BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_receive_from: [" << error << "] " << error.message();
+            continue;
+        }
 
         const auto result{deserialise({std::begin(data), std::begin(data) + data_size})};
         if (!result)
@@ -60,7 +74,15 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
         for (const auto& response : responses)
         {
             BOOST_ASSERT(!response.empty());
-            co_await socket.async_send_to(boost::asio::buffer(response), client, boost::asio::use_awaitable);
+
+            const auto [error, sent_size] =
+                co_await socket.async_send_to(boost::asio::buffer(response), client, use_nothrow_awaitable);
+            if (error)
+            {
+                BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_send_to (sent " << sent_size << " bytes, "
+                                         << client << "): [" << error << "] " << error.message();
+                continue;
+            }
         }
     }
 }
@@ -97,7 +119,14 @@ boost::asio::awaitable<void> distributePadData(std::uint32_t                    
 
         for (const auto& data : data_list)
         {
-            co_await socket.async_send_to(boost::asio::buffer(data), endpoint, boost::asio::use_awaitable);
+            const auto [error, sent_size] =
+                co_await socket.async_send_to(boost::asio::buffer(data), endpoint, use_nothrow_awaitable);
+            if (error)
+            {
+                BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_send_to (sent " << sent_size << " bytes, "
+                                         << endpoint << "): [" << error << "] " << error.message();
+                continue;
+            }
         }
     }
 }
