@@ -42,12 +42,13 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
     for (;;)
     {
         boost::asio::ip::udp::endpoint client;
-        const auto [error, data_size] =
+        const auto [receive_error, data_size] =
             co_await socket.async_receive_from(boost::asio::buffer(data), client, use_nothrow_awaitable);
 
-        if (error)
+        if (receive_error)
         {
-            BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_receive_from: [" << error << "] " << error.message();
+            BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_receive_from: [" << receive_error << "] "
+                                     << receive_error.message();
             continue;
         }
 
@@ -75,12 +76,12 @@ boost::asio::awaitable<void> listenAndRespond(std::uint32_t server_id, const sha
         {
             BOOST_ASSERT(!response.empty());
 
-            const auto [error, sent_size] =
+            const auto [send_error, sent_size] =
                 co_await socket.async_send_to(boost::asio::buffer(response), client, use_nothrow_awaitable);
-            if (error)
+            if (send_error)
             {
                 BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_send_to (sent " << sent_size << " bytes, "
-                                         << client << "): [" << error << "] " << error.message();
+                                         << client << "): [" << send_error << "] " << send_error.message();
                 continue;
             }
         }
@@ -119,12 +120,12 @@ boost::asio::awaitable<void> distributePadData(std::uint32_t                    
 
         for (const auto& data : data_list)
         {
-            const auto [error, sent_size] =
+            const auto [send_error, sent_size] =
                 co_await socket.async_send_to(boost::asio::buffer(data), endpoint, use_nothrow_awaitable);
-            if (error)
+            if (send_error)
             {
                 BOOST_LOG_TRIVIAL(error) << "listenAndRespond::async_send_to (sent " << sent_size << " bytes, "
-                                         << endpoint << "): [" << error << "] " << error.message();
+                                         << endpoint << "): [" << send_error << "] " << send_error.message();
                 continue;
             }
         }
