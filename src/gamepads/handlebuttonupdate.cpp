@@ -41,16 +41,16 @@ bool handleButtonUpdate(const SDL_GamepadButtonEvent& event, shared::GamepadData
     bool updated{false};
     switch (event.button)
     {
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_SOUTH:
             updated = tryModifyState(data.m_abxy.m_a, event.state);
             break;
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_B:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_EAST:
             updated = tryModifyState(data.m_abxy.m_b, event.state);
             break;
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_X:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_WEST:
             updated = tryModifyState(data.m_abxy.m_x, event.state);
             break;
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_Y:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_NORTH:
             updated = tryModifyState(data.m_abxy.m_y, event.state);
             break;
 
@@ -108,8 +108,8 @@ void tryToToggleSensor(const SDL_GamepadButtonEvent& event, const shared::Gamepa
 {
     switch (event.button)
     {
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_A:
-        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_Y:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_SOUTH:
+        case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_NORTH:
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_UP:
         case SDL_GamepadButton::SDL_GAMEPAD_BUTTON_DPAD_DOWN:
             if (shouldTryToToggleSensor(data))
