@@ -42,7 +42,7 @@ public:
 
 SdlCleanupGuard initializeSdl(std::string mapping_file)
 {
-    if (SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1") < 0
+    if (SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1") == SDL_FALSE
         || SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR) < 0)
     {
         throw std::runtime_error(std::string{"SDL could not be initialized! SDL Error: "} + SDL_GetError());
