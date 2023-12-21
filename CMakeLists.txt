@@ -30,7 +30,6 @@ set(SDL_VIDEO OFF)
 set(SDL_RENDER OFF)
 set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
-ADD_DEFINITIONS(-DDEBUG_JOYSTICK)
 add_subdirectory(external/sdl)
 
 #----------------------------------------------------------------------------------------------------------------------
